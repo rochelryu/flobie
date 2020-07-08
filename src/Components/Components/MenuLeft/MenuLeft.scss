@@ -1,0 +1,16 @@
+.menuLeft {
+    background-color: #fff;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 240px;
+
+    .itemSidebar {
+        margin-right: 30px;
+        transition: all .5s;
+    }
+    .border_radius_right {
+        border-radius: 0px 30px 30px 0px;
+    }
+}
