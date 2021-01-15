@@ -1,6 +1,6 @@
 import React from 'react';
 import {Avatar, List, ListItem, ListItemIcon, ListItemText} from '@material-ui/core';
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ApiTwoTone, DashboardTwoTone, SettingTwoTone, ReconciliationTwoTone } from '@ant-design/icons';
 import { colorPrimary } from '../../../Constants/color';
 import './MenuLeft.scss'
@@ -9,27 +9,28 @@ import { className } from '../../../Constants/function';
 interface Props {
   url? :string
 }
+
   export default function MenuLeft(props: Props) {
-  
+  console.log(props.url)
   const itemsSidebar = [
     {
-        title: "Tableau de bord",
-        route: "/",
+        title: "Accueil",
+        route: "/home",
         icon: <DashboardTwoTone twoToneColor={colorPrimary} />,
     },
     {
       title: "Reservation",
-      route: "/reserve",
+      route: "/home/reserve",
       icon: <ReconciliationTwoTone twoToneColor={colorPrimary}/>,
     },
     {
       title: "Paramêttres",
-      route: "/setting",
+      route: "/home/setting",
       icon: <SettingTwoTone twoToneColor={colorPrimary} />,
     },
     {
       title: "Deconexion",
-      route: "/logout",
+      route: "/home/logout",
       icon: <ApiTwoTone twoToneColor={colorPrimary} />
     }
 
@@ -44,12 +45,12 @@ interface Props {
         <List>
           {itemsSidebar.map((value, index) => (
             <div className={className(["itemSidebar", index === 0 ? `shadow_2 border_radius_right ${btn_color_primary}` : ""])} key={value.title}>
-              <NavLink to={value.route}>
+              <Link to={value.route}>
               <ListItem>
                   <ListItemIcon>{value.icon}</ListItemIcon>
-                  <ListItemText primary={value.title} />
+                  <span>{value.title}</span>
               </ListItem>
-            </NavLink>
+            </Link>
             </div>
           ))}
         </List>

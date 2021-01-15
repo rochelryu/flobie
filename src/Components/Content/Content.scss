@@ -1,5 +1,10 @@
 
-.content-home {
-    padding: 30px 0px 20px 250px;
+body{
+    overflow-x: hidden;
+
+    .content-home {
+    min-height: 100vh;
+    padding: 30px 0px 20px 210px;
     background-color: #eee;
+}
 }

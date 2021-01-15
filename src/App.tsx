@@ -1,8 +1,7 @@
-import React from 'react';
-import { createBrowserHistory } from 'history';
+import React, {FunctionComponent} from 'react';
 import {
-  Router,
-  Route,Switch
+  BrowserRouter as Router,
+  Route,Switch,
 } from "react-router-dom";
 import {
   CSSTransition,
@@ -12,22 +11,30 @@ import SignupScreen from './Components/Signup/SignupScreen'
 import './App.scss';
 import Signin from './Components/Signin/Signin';
 import Content from './Components/Content/Content';
+import SplashScreen from './Components/SplashScreen/SplashScreen';
+import {
+  PrivateRoute
+} from './Components/PrivateRoute/PrivateRoute';
 
-const history = createBrowserHistory();
 
-
-function App() {
-  const theme = (6 <= new Date().getHours() && new Date().getHours() <= 18) ? "content" : "contentNight";
+const App:FunctionComponent = () =>{
+  const theme = new Date().getFullYear() > 18 ? 'content' : 'contentNight'
   return (
-    <Router history={history}>
-          <Route render={({location})=>(
+    <Router>
+          
               <TransitionGroup>
-                <CSSTransition key={location.key} timeout={300} classNames="my-node">
+                <CSSTransition timeout={300} classNames="my-node">
                   <div className={theme}>
-                    <Switch location={location}>
-                      <Route exact path="/signup" component={SignupScreen} />
+                    <Switch>
+                      
+                      <Route exact path="/" component={SplashScreen} />
+                      <Route path="/signup" component={SignupScreen} />
                       <Route path="/signin" component={Signin} />
-                      <Route path="/" component={Content} />
+                      <PrivateRoute path='/home'  component={Content} />
+                      {/* <Route path="/" component={SplashScreen} /> */}
+                      {/* <Route path="*">
+                          <Redirect to="/signin" />
+                      </Route> */}
                       {/* <Route path="/pannier" component={PannierScreen} />
                       <Route path="/auth/:handle" component={AuthScreen} />
                       <Route path="/auth" component={AuthScreen} />
@@ -45,7 +52,7 @@ function App() {
                   </div>
                 </CSSTransition>
               </TransitionGroup>
-          )}/>
+          
 
     </Router>
     );

@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@500&family=Do+Hyeon&family=Open+Sans+Condensed:wght@300&display=swap');
 .flexbox {
     display: flex;
     height: 100%;
@@ -145,6 +146,21 @@
         }
     }
 
+    &.allAbsolute {
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+    }
+
+    &.madeBy {
+        bottom: 10%;
+        left: 45%;
+        font-family: 'Do Hyeon', sans-serif;
+        z-index: 2;
+        color: #555;
+    }
+
 
 }
 
@@ -171,4 +187,11 @@
 }
 .allWidth {
     width: 100%;
+}
+
+.loader {
+    svg path,
+    svg rect{
+        fill: #F9A826;
+    }
 }

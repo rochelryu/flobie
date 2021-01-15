@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { Props } from '../../Interfaces/Props/Navigation';
 import { Card, Grid, Avatar } from '@material-ui/core';
 import { colorPrimary } from '../../Constants/color';
@@ -10,17 +10,40 @@ import MegaTitleProps from '../Components/MegaTitle/MegaTitle';
 import { HomeTwoTone, TagsTwoTone, SearchOutlined } from '@ant-design/icons';
 import blur from '../../Assets/Images/svg/blur.svg'
 import TextInputField from '../Components/TextInputField/TextInputField';
+import BoxLoadings from '../Components/Loading/BoxLoading';
 import {Bar} from 'react-chartjs-2';
-
+import DisplayData from '../Components/DisplayData/DisplayData'
 const { TabPane } = Tabs;
-
+const top = 10;
 export default function Dashboard(props: Props) {
     const [searchItems, setSearchItems] = useState('')
     const [visible, setVisible] = useState(false)
     const [disabled, setDisabled] = useState(true)
     const [loading, setloading] = useState(false)
-    const [top, setTop] = useState(10);
+    const [isFetch, setIsFetch] = useState(true)
     
+    
+
+
+    // Hooks Effet
+    useEffect(() => {
+      /*function waitForAction(state: boolean) {
+          setTimeout(()=> setIsFetch(state), 2000)
+      }
+      waitForAction(false)*/
+      setTimeout(()=> {
+        setIsFetch(false)
+      }, 2000)
+      // return () => {
+      //   setTimeout(()=> {
+      //     setIsFetch(false)
+      //   }, 2000)
+      //   setIsFetch(true)
+      // }
+
+    });
+
+
     const handleOk = () => {
         setloading(true)
         setTimeout(()=>{
@@ -146,7 +169,14 @@ export default function Dashboard(props: Props) {
           contact: '+225 32 87 09 98',
         });
       }
-    return (
+
+    if(isFetch) {
+        return (
+          <BoxLoadings />
+        )
+      }
+    else {
+      return (
         <>
             <main>
                 <Modals
@@ -180,7 +210,7 @@ export default function Dashboard(props: Props) {
                      </>
                  }
                  />
-                <div className="pt-30">
+                <div className="pt-10">
                     <MegaTitleProps title="Tableau de Bord" size='md' />
                     <Grid container spacing={1} style={{padding: 10}}>
                       <Grid item xs={9}>
@@ -274,14 +304,13 @@ export default function Dashboard(props: Props) {
                             />
                           </Grid>
                         </Grid>
-                        <Card>
-                          <Table columns={columns} dataSource={data} scroll={ {y: 400}} />
-                        </Card>
+                        <DisplayData columns={columns} dataSource={data} />
+                          {/* <Table columns={columns} dataSource={data} scroll={ {y: 400}} /> */}
                       </Grid>
                       <Grid item xs={3}>
                         <Affix offsetTop={top}>
                           <div className="shadow btn_color_white allHeight allWidth border_radius">
-                            <Grid container spacing={1} style={{padding: 20, marginBottom: 10}}>
+                            <Grid container spacing={1} style={{padding: 10}}>
                               <MegaTitleProps title="Aujourd'hui" size='sm' />
 
                               <Grid item xs={5}>
@@ -300,10 +329,10 @@ export default function Dashboard(props: Props) {
                             
                             </Grid>
 
-                            <Grid container spacing={1} style={{padding: 20}}>
+                            <Grid container spacing={1} style={{padding: 10}}>
                               <MegaTitleProps title="Cette semaine" size='sm' />
 
-                              <div className="mt-30 allWidth">
+                              <div className="mt-10 allWidth">
                                 <Tabs defaultActiveKey="1">
                                   <TabPane tab="Réservations" key="1">
                                   <Grid container spacing={1} style={{padding: 0}}>
@@ -343,6 +372,7 @@ export default function Dashboard(props: Props) {
                 </main>
         </>
     )
+    }
 }
 
 

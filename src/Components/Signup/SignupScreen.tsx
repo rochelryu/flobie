@@ -1,8 +1,8 @@
 import React, {useState} from 'react'
 import {Container, Grid, Card, IconButton} from '@material-ui/core';
-import logo from '../../logo.svg'
-import welcome from '../../Assets/Images/svg/welcome.svg'
-import './SignupScreen.scss'
+import logo from '../../Assets/Images/png/logo_transparent.png';
+import welcome from '../../Assets/Images/svg/welcome.svg';
+import './SignupScreen.scss';
 import MegaTitleProps from '../Components/MegaTitle/MegaTitle';
 import TextInputField from '../Components/TextInputField/TextInputField';
 import Buttons from '../Components/Buttons/Buttons';
@@ -27,24 +27,25 @@ import Links from '../Components/Links/Links';
 function SignupScreen() {
     const labels = ["J'accepte que mes données soient utilisées à des fins de verification de mon identité"]
 
-    const [name, changeName] = useState('');
-    const [viewPassWord, setViewPassWord] = useState(false);
-    const [numberHotel, changeNumberHotel] = useState('');
-    const [password, changePassword] = useState('');
-    const [numberLotis, changeNumberLotis] = useState('');
+    const [name, changeName] = useState<string>('');
+    const [viewPassWord, setViewPassWord] = useState<boolean>(false);
+    const [numberHotel, changeNumberHotel] = useState<string>('');
+    const [password, changePassword] = useState<string>('');
+    const [numberLotis, changeNumberLotis] = useState<string>('');
 
 
-    const [etoile, changeEtoile] = useState(0)
-    const [checbox, changeChecbox] = useState({
+    const [etoile, changeEtoile] = useState<number>(0)
+    const [checbox, changeChecbox] = useState<{contrat:boolean}>({
         contrat:false
     })
-    const [location, setLocation] = useState({latitude: 0, longitude: 0})
+    const [location, setLocation] = useState<{latitude: number, longitude: number}>({latitude: 0, longitude: 0})
 
     const getLocation = async () => {
         await navigator.geolocation.getCurrentPosition((position) => { 
            const {latitude, longitude} = position.coords
-           setLocation({latitude, longitude})
-           message.success("Nous avons pu vous localiser. Vous pouvez continuer", 4000)
+           console.log({latitude, longitude});
+           setLocation({latitude, longitude});
+           message.success(`Nous avons pu vous localiser. Vous pouvez continuer, latitude ${latitude} longitude ${longitude} `)
          }, (error) => { 
             message.error("Veuillez vous assurer que votre connexion internet est fonctionnelle")
             })

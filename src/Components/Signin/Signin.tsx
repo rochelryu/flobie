@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 import {Container, Grid, Card, IconButton} from '@material-ui/core';
-import logo from '../../logo.svg'
+import logo from '../../Assets/Images/png/logo_transparent.png'
 import welcome from '../../Assets/Images/svg/good people.svg'
 import MegaTitleProps from '../Components/MegaTitle/MegaTitle';
 import TextInputField from '../Components/TextInputField/TextInputField';
@@ -23,7 +23,7 @@ function Signin(props: Props) {
         if (!disabled) {
             message.loading("Connexion en cours")
             setTimeout(()=>{
-                props.history.push('/home/home')
+                props.history.push('/home')
             }, 3000)
         }
         else {

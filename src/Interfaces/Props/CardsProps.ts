@@ -8,7 +8,7 @@ export interface Props {
     variant?: "contained" | "outlined"
     disabled?: boolean,
     tooltip?: string,
-    shape?: 'circle' | 'round'| 'circle-outline',
+    shape?: 'circle' | 'round',
     loading?: boolean
     block?: boolean,
     type?: 'primary' | 'ghost' | 'dashed' | 'link' | 'default', 
