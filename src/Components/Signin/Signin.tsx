@@ -50,11 +50,7 @@ function Signin(props: Props) {
                                 <Grid item xs={3}>
                                     <img src={logo} className='logoApp-2x App-logo' alt='Logo' />
                                 </Grid>
-                                <Grid item xs={9}>
-                                    <div className="flexbox flex-end">
-                                        <h5>Pas encore de compte ? <Links to='/signup' content="Non" tooltip="Alors cliquez ici pour vous inscrire" /> </h5>
-                                    </div>
-                                </Grid>
+                                
                                 <MegaTitleProps title='Connexion' size='md' />
                                 <Grid item xs={7}>
                                     <Container>

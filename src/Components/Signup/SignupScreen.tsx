@@ -43,12 +43,11 @@ function SignupScreen() {
     const getLocation = async () => {
         await navigator.geolocation.getCurrentPosition((position) => { 
            const {latitude, longitude} = position.coords
-           console.log({latitude, longitude});
            setLocation({latitude, longitude});
            message.success(`Nous avons pu vous localiser. Vous pouvez continuer, latitude ${latitude} longitude ${longitude} `)
          }, (error) => { 
-            message.error("Veuillez vous assurer que votre connexion internet est fonctionnelle")
-            })
+            message.error("Veuillez vous assurer que votre connexion internet est fonctionnelle,"+error.message)
+            }, {timeout: 5000})
     }
     
     const connection = async () => {

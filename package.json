@@ -34,6 +34,7 @@
     "chart.js": "^2.9.4",
     "cra-template-typescript": "1.1.1",
     "date-fns": "^2.16.1",
+    "electron-get-location": "^1.0.1",
     "electron-is-dev": "^1.2.0",
     "history": "^5.0.0",
     "material-table": "^1.69.2",
@@ -80,6 +81,7 @@
     "concurrently": "^5.3.0",
     "electron": "^11.0.4",
     "electron-builder": "^22.9.1",
+    "electron-packager": "^15.2.0",
     "wait-on": "^5.2.0"
   }
 }

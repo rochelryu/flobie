@@ -4,8 +4,9 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require("path");
 const isDev = require("electron-is-dev");
 let mainWindow;
+process.env.GOOGLE_API_KEY = 'AIzaSyA9GXXmu_ibKPwoO4ZUdBk656Putwuao-A';
 function createWindow() {
-mainWindow = new BrowserWindow({ width: 900, height: 680 });
+mainWindow = new BrowserWindow({ width: 1366, height: 768, icon: `${path.join(__dirname, "logo.ico")}` });
 mainWindow.loadURL(
 isDev
 ? "http://localhost:3000"
