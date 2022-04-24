@@ -2,17 +2,15 @@ import React from 'react';
 
 export interface Props {
     title?: string,
-    icon?: React.ReactNode,
+    style?: React.CSSProperties,
+    description?: string,
+    cover?: React.ReactNode,
+    avatar?: string,
+    actions?: React.ReactNode[],
     id: string,
     className?: string,
-    variant?: "contained" | "outlined"
-    disabled?: boolean,
     tooltip?: string,
-    shape?: 'circle' | 'round',
-    loading?: boolean
-    block?: boolean,
-    type?: 'primary' | 'ghost' | 'dashed' | 'link' | 'default', 
-    onClick: (event: any) => void
+    onClick?: (event: any) => void
     onFocus?: (e: any) => void
     onBlur?: (e: any) => void
      

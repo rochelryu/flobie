@@ -17,6 +17,7 @@ export default function Buttons(props: Props) {
                     type={props.type}
                     shape={props.shape}
                     disabled={props.disabled ?? false}
+                    danger={props.danger ?? false}
                     loading={props.loading ?? false}
                     block={props.block ?? false}
                     onClick={props.onClick}

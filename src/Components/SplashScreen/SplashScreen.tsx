@@ -1,11 +1,15 @@
 import React, {useEffect} from 'react';
 import './SplashScreen.scss';
 import { Props } from '../../Interfaces/Props/Navigation';
-
+import { useNavigate } from "react-router-dom";
 function SplashScreen(props: Props) {
+    let navigate = useNavigate();
+    const recovery = localStorage.getItem('recovery');
     useEffect(() => {
         setTimeout(() => {
-            props.history.push('/signin')
+            if(recovery) {
+                navigate('/home');
+            } else { navigate('/signin'); }
         }, 5000);
     }, [])
     return (

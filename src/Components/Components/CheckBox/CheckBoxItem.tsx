@@ -1,6 +1,6 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles';
-import Checkbox, { CheckboxProps } from '@material-ui/core/Checkbox';
+import { withStyles } from '@mui/styles';
+import Checkbox, { CheckboxProps } from '@mui/material/Checkbox';
 import { colorGrey, colorPrimary } from '../../../Constants/color';
 
 

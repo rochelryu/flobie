@@ -1,18 +1,16 @@
 import React, {useState} from 'react'
-import {Container, Grid, Card, IconButton} from '@material-ui/core';
+import {Container, Grid, Card, IconButton} from '@mui/material';
 import logo from '../../Assets/Images/png/logo_transparent.png';
 import welcome from '../../Assets/Images/svg/welcome.svg';
 import './SignupScreen.scss';
 import MegaTitleProps from '../Components/MegaTitle/MegaTitle';
 import TextInputField from '../Components/TextInputField/TextInputField';
 import Buttons from '../Components/Buttons/Buttons';
-import { Rate, message, notification } from 'antd';
-import { colorPrimary } from '../../Constants/color';
-import { PushpinTwoTone, SmileTwoTone } from '@ant-design/icons';
+import { message } from 'antd';
 import { btn_color_primary } from '../../Constants/ClassName/Buttons';
-import CheckBoxs from '../Components/CheckBox/CheckBoxs';
-import {Visibility, VisibilityOff} from '@material-ui/icons';
-import Links from '../Components/Links/Links';
+import {Visibility, VisibilityOff} from '@mui/icons-material';
+import { ConsumeApi } from '../../ServiceWorker/ConsumeApi';
+import { Etat } from '../../Constants/Enum';
 
 
 
@@ -25,56 +23,37 @@ import Links from '../Components/Links/Links';
 
 
 function SignupScreen() {
-    const labels = ["J'accepte que mes données soient utilisées à des fins de verification de mon identité"]
-
-    const [name, changeName] = useState<string>('');
+    const consumeApi: ConsumeApi = new ConsumeApi();
     const [viewPassWord, setViewPassWord] = useState<boolean>(false);
-    const [numberHotel, changeNumberHotel] = useState<string>('');
     const [password, changePassword] = useState<string>('');
-    const [numberLotis, changeNumberLotis] = useState<string>('');
+    const [newPassword, changeNewPassword] = useState<string>('');
 
-
-    const [etoile, changeEtoile] = useState<number>(0)
-    const [checbox, changeChecbox] = useState<{contrat:boolean}>({
-        contrat:false
-    })
-    const [location, setLocation] = useState<{latitude: number, longitude: number}>({latitude: 0, longitude: 0})
-
-    const getLocation = async () => {
-        await navigator.geolocation.getCurrentPosition((position) => { 
-           const {latitude, longitude} = position.coords
-           setLocation({latitude, longitude});
-           message.success(`Nous avons pu vous localiser. Vous pouvez continuer, latitude ${latitude} longitude ${longitude} `)
-         }, (error) => { 
-            message.error("Veuillez vous assurer que votre connexion internet est fonctionnelle,"+error.message)
-            }, {timeout: 5000})
-    }
     
     const connection = async () => {
         
-        if(location.latitude === 0) {
-            message.error("Veuillez cliquer sur le boutton de localisation D'abord")
+        if (!disabled) {
+            message.loading("Connexion en cours")
+            .then(async () => {
+                const info = await consumeApi.changePassword(password, newPassword);
+                if(info.etat === Etat.SUCCESS) {
+                    localStorage.setItem('recovery', info.result.recovery);
+                    message.success("Mot de passe changé avec succès");
+                    changeNewPassword('');
+                    changePassword('');
+                } else {
+                    message.error(info.error, 7);
+                }
+            })
+            
+            
         }
-        else if (!contrat) {
-            message.warning("Veuillez cocher la case de notre contrat d'utilisation D'abord")
-        } else if (!disabled) {
-            message.loading("Votre processus d'enregistrement est en cours")
-            setTimeout(()=> {
-                notification.info({
-                    message: `Dossier enregistré`,
-                    description:
-                      "L'unité de sécurité la plus proche est chargé de valider votre demande",
-                    icon: <SmileTwoTone twoToneColor={colorPrimary} />,
-                    placement: 'topLeft'
-                  });
-            }, 3000)
+        else {
+            message.error("Rassurez vous que votre numero est dans le bon format")
         }
+        
     }
 
-    const onChecked = async ( event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(event.target.name, event.target.checked)
-        changeChecbox({ ...checbox, [event.target.name]: event.target.checked });
-    }
+   
     const handleClickShowPassword = () => {
         const oldViewPassWord = viewPassWord
         setViewPassWord(!oldViewPassWord)
@@ -83,8 +62,7 @@ function SignupScreen() {
       const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
       };
-    const {contrat} = checbox
-    const disabled =  (name.length > 4 && numberHotel.length === 8 && numberLotis.length > 3 && etoile !== 0 && location.latitude !== 0 && password.length > 3 && contrat) ? false : true
+    const disabled =  !(newPassword.length >= 6 && password.length >= 6 && newPassword !== password)
 
 
     return (
@@ -96,58 +74,12 @@ function SignupScreen() {
                                 <Grid item xs={3}>
                                     <img src={logo} className='logoApp-2x App-logo' alt='Logo' />
                                 </Grid>
-                                <Grid item xs={9}>
-                                    <div className="flexbox flex-end">
-                                        <h5>Vous avez déjà un compte ? <Links to='/signin' content="Oui" tooltip="Alors cliquez ici pour vous connecter" /> </h5>
-                                    </div>
-                                </Grid>
-                                <MegaTitleProps title='Inscription' size='md' />
+                                
+                                <MegaTitleProps title='Change Password' size='md' />
                                 <Grid item xs={7}>
                                     <Container>
                                         <Grid container>
-                                            <Grid item xs={6} style={{paddingBottom: 20}}>
-                                                <TextInputField
-                                                    id='name'
-                                                    className='createName'
-                                                    value={name}
-                                                    required={true}
-                                                    variant="outlined"
-                                                    label="Nom de l'hotel"
-                                                    onChange={(e) => changeName(e.target.value)}
-                                                />
-                                                
-                                            </Grid>
-                                            <Grid item xs={6} style={{paddingBottom: 20}}>
-                                                <TextInputField
-                                                    id='number'
-                                                    className='numberHotel'
-                                                    value={numberHotel}
-                                                    required={true}
-                                                    variant="outlined"
-                                                    prefix='+225'
-                                                    type='number'
-                                                    label='Numéro de reception'
-                                                    onChange={(e) => changeNumberHotel(e.target.value.toString())}
-                                                />
-                                                
-                                            </Grid>
-                                            <Grid item xs={6} style={{paddingBottom: 20}}>
-                                                <TextInputField
-                                                    id='identifiant'
-                                                    className='identifiantLot'
-                                                    value={numberLotis}
-                                                    required={true}
-                                                    variant="outlined"
-                                                    label='Identiant de Lotis'
-                                                    onChange={(e) => changeNumberLotis(e.target.value)}
-                                                />
-                                                
-                                            </Grid>
-                                            <Grid item xs={6} style={{paddingBottom: 20}}>
-                                                <h5>Nombre d'étoile votre hotel</h5>
-                                                <Rate defaultValue={etoile} onChange={(value) => changeEtoile(value)} />
-                                            </Grid>
-                                            <Grid item xs={9} style={{paddingBottom: 10}}>
+                                        <Grid item xs={12} style={{paddingBottom: 40}}>
                                             <TextInputField
                                                     id='password'
                                                     className='passwordHotel'
@@ -165,47 +97,40 @@ function SignupScreen() {
                                                         </IconButton>
                                                     }
                                                     type={viewPassWord ? 'text' : 'password'}
-                                                    label='Créer un mot de passe'
+                                                    label='Ancien mot de passe'
                                                     onChange={(e) => changePassword(e.target.value.toString())}
                                                 />
                                             </Grid>
-                                            <Grid item xs={3} style={{paddingBottom: 10}} >
-                                                <div className='flexbox flex-center'>
-                                                    <Buttons
-                                                        id='Locate'
-                                                        title='Localisation'
-                                                        shape="round"
-                                                        type="dashed"
-                                                        onClick={getLocation}
-                                                        icon={<PushpinTwoTone twoToneColor={colorPrimary} />}
-                                                        tooltip='Nous recupérons votre position exacte pour un meilleur service'
-                                                    />
-                                                </div>
-                                                
-                                            </Grid>
-                                            <Grid item xs={12} style={{marginTop: 10}}>
-                                                <CheckBoxs
-                                                    row={true}
-                                                    labels={labels}
-                                                    items={
-                                                        [
-                                                            {
-                                                                checked:contrat,
-                                                                id:'contrat',
-                                                                name:'contrat',
-                                                                className: 'checkbox contrat',
-                                                            }
-                                                        ]
+                                            <Grid item xs={12} style={{paddingBottom: 10}}>
+                                            <TextInputField
+                                                    id='newPassword'
+                                                    className='passwordHotel'
+                                                    value={newPassword}
+                                                    required={true}
+                                                    variant="outlined"
+                                                    suffix={
+                                                        <IconButton
+                                                            aria-label="toggle password visibility"
+                                                            onClick={handleClickShowPassword}
+                                                            onMouseDown={handleMouseDownPassword}
+                                                            edge="end"
+                                                        >
+                                                            {!viewPassWord ? <Visibility /> : <VisibilityOff />}
+                                                        </IconButton>
                                                     }
-                                                    onChange={onChecked}
+                                                    type={viewPassWord ? 'text' : 'password'}
+                                                    label='Nouveau mot de passe'
+                                                    onChange={(e) => changeNewPassword(e.target.value.toString())}
                                                 />
                                             </Grid>
+                                           
+                                            
                                             <Grid item xs={12} style={{marginTop: 10}}>
                                                 <Buttons
                                                     id='signup'
                                                     title="S'enregistrer"
                                                     shape="round"
-                                                    block={true}
+                                                    block={false}
                                                     className={!disabled ? btn_color_primary : ''}
                                                     disabled={disabled}
                                                     onClick={connection}

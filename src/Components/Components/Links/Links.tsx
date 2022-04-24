@@ -1,5 +1,5 @@
 import React from 'react'
-import { Tooltip } from '@material-ui/core'
+import { Tooltip } from '@mui/material'
 import { Props } from '../../../Interfaces/Props/LinksProps';
 import { Link } from 'react-router-dom';
 import { color_primary } from '../../../Constants/ClassName/Color';

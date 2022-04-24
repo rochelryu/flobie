@@ -1,16 +1,14 @@
 import React from 'react';
 import {
-  Redirect,
-  Route
+  Navigate,
+  useLocation
 } from "react-router-dom";
 
 
 
-export const PrivateRoute = ({component, isAuthenticated, ...rest}: any) => {
-    const routeComponent = (props: any) => (
-        1 === 1
-            ? React.createElement(component, props)
-            : <Redirect to={{pathname: '/signin'}}/>
-    );
-    return <Route {...rest} render={routeComponent}/>;
+export const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+  let location = useLocation();
+  const recovery = localStorage.getItem('recovery');
+    if(recovery) return children;
+    return <Navigate to="/signin" state={{ from: location }} />;
 };

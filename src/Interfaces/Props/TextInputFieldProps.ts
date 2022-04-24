@@ -6,14 +6,15 @@ export interface Props {
     placeholder?: string,
     id: string,
     required: boolean,
-    variant?: "outlined" | "filled",
+    variant?: "outlined" | "filled" | "standard",
     type?: "number" | "text" | "password",
     prefix?: React.Component | string
     suffix?: any
     readOnly?: boolean,
+    disabled?: boolean,
     className: string, 
     defaultValue?: string,
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
     onFocus?: (e: any) => void
     onBlur?: (e: any) => void
     onClick?: (e: any) => void

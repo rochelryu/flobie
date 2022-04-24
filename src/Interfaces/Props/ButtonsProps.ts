@@ -7,6 +7,7 @@ export interface Props {
     className?: string,
     variant?: "contained" | "outlined"
     disabled?: boolean,
+    danger?: boolean,
     tooltip?: string,
     shape?: 'circle' | 'round',
     loading?: boolean

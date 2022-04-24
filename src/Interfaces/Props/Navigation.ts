@@ -1,4 +1,4 @@
-import {RouteComponentProps} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-export interface Props extends RouteComponentProps<{name:string}> {
+export interface Props {
 }

@@ -1,169 +1,189 @@
 import React, { useState, useEffect } from 'react'
 import { Props } from '../../Interfaces/Props/Navigation';
 import MegaTitleProps from '../Components/MegaTitle/MegaTitle';
-import { Divider, Chip, Button, Grid, Typography } from '@material-ui/core';
-import { message, DatePicker, Table, Affix, Tabs, Cascader} from 'antd';
-import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
-import Accordion from '@material-ui/core/Accordion';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import AccordionActions from '@material-ui/core/AccordionActions';
-import { ReconciliationTwoTone, FolderOpenTwoTone } from '@ant-design/icons';
+import { Divider, Button, Grid, Typography, IconButton } from '@mui/material';
+import { message,Select, Table, Tag} from 'antd';
+import { makeStyles } from '@mui/styles';import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionActions from '@mui/material/AccordionActions';
+import { ReconciliationTwoTone } from '@ant-design/icons';
 import { colorPrimary } from '../../Constants/color';
 import TextInputField from '../Components/TextInputField/TextInputField';
-import Buttons from '../Components/Buttons/Buttons';
-import { btn_color_primary } from '../../Constants/ClassName/Buttons';
-import { PermIdentity } from '@material-ui/icons';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import BoxLoadings from '../Components/Loading/BoxLoading';
+import { level_role } from '../../Constants/function';
+import { BuiltinRoleAdmin, Etat } from '../../Constants/Enum';
+import { ConsumeApi } from '../../ServiceWorker/ConsumeApi';
+import { useNavigate } from "react-router-dom";
 
-const { RangePicker } = DatePicker;
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      width: '100%',
-      margin: 15
-    },
-    heading: {
-      fontSize: theme.typography.pxToRem(15),
-    },
-    secondaryHeading: {
-      fontSize: theme.typography.pxToRem(15),
-      color: theme.palette.text.secondary,
-    },
-    icon: {
-      verticalAlign: 'bottom',
-      height: 20,
-      width: 20,
-    },
-    details: {
-      alignItems: 'center',
-    },
-    column: {
-      flexBasis: '33.33%',
-    },
-    helper: {
-      borderLeft: `2px solid ${theme.palette.divider}`,
-      padding: theme.spacing(1, 2),
-    },
-    link: {
-      color: theme.palette.primary.main,
-      textDecoration: 'none',
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    },
-  }),
-);
-
-const options = [
-  {
-    value: 'zhejiang',
-    label: 'Zhejiang',
-    children: [
-      {
-        value: 'hangzhou',
-        label: 'Hangzhou',
-        children: [
-          {
-            value: 'xihu',
-            label: 'West Lake',
-          },
-        ],
-      },
-    ],
+const useStyles = makeStyles({
+  root: {
+    width: '100%',
+    margin: 15
   },
-  {
-    value: 'jiangsu',
-    label: 'Jiangsu',
-    children: [
-      {
-        value: 'nanjing',
-        label: 'Nanjing',
-        children: [
-          {
-            value: 'zhonghuamen',
-            label: 'Zhong Hua Men',
-          },
-        ],
-      },
-    ],
+  heading: {
+    fontSize: 20,
   },
-];
+  secondaryHeading: {
+    fontSize: 15,
+    color: colorPrimary,
+  },
+  icon: {
+    verticalAlign: 'bottom',
+    height: 20,
+    width: 20,
+  },
+  details: {
+    alignItems: 'center',
+  },
+  column: {
+    flexBasis: '33.33%',
+  },
+  helper: {
+    borderLeft: `2px solid grey`,
+    padding: 10,
+  },
+  link: {
+    color: colorPrimary,
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
+});
+const { Option } = Select;
+
+function  arrayOptionForRole (role: string): {value: string}[] {
+  const levelRole = level_role(role);
+  if(levelRole === 0) {
+    return [
+      {
+        value: BuiltinRoleAdmin.ADMIN_ACTUALITY,
+      },
+      {
+        value: BuiltinRoleAdmin.ADMIN_DEALS,
+      },
+      {
+        value: BuiltinRoleAdmin.ADMIN_EVENTS,
+      },
+      {
+        value: BuiltinRoleAdmin.ADMIN_COVOITURAGES,
+      },
+    ];
+  } else if(levelRole === 1) {
+    return [
+      {
+        value: 'EMPLOYER_' + role.split('_')[1]
+      }
+    ]
+  } else {
+    return [];
+  }
+}
 function Reserve(props: Props) {
     const classes = useStyles();
-
-    const connection = async () => {
-        if (name.length > 4) {
-            message.loading("Recherche en cours")
-            const data = totalClient;
-            data.push(`${name} | ${numberClient.length === 8 ? numberClient : "N/A"}`)
-            changeTotalClient(data)
-            changeName('');
-            changeNumberClient('');
-        }
-        else {
-            message.error("Veuillez faire entrer quelque chose à de valide")
-        }
-    }
-
+    const navigate = useNavigate();
+    const consumeApi: ConsumeApi = new ConsumeApi();
+    const role = localStorage.getItem('role') ?? '';
+    const roleArray = arrayOptionForRole(role);
     const [piece, changePiece] = useState('');
+    const [password, changePassword] = useState('');
     const [name, changeName] = useState('');
     const [numberClient, changeNumberClient] = useState('');
-    const [totalClient, changeTotalClient] = useState(['']);
+    const [roleChoie, changeRoleChoice] = useState('');
     const [isFetch, setIsFetch] = useState(true);
+    const [employers, setEmployers] = useState<any[]>([]);
+    const [viewPassWord, setViewPassWord] = useState(false);
 
-
-    const columns = [
-        { title: 'Name', field: 'name' },
-        { title: 'Surname', field: 'surname' },
-        { title: 'Birth Year', field: 'birthYear', type: 'numeric' },
-        {
-          title: 'Birth Place',
-          field: 'birthCity',
-          lookup: { 34: 'İstanbul', 63: 'Şanlıurfa' },
-        },
-      ];
-    const data = [
-        { name: 'Mehmet', surname: 'Baran', birthYear: 1987, birthCity: 63 },
-        {
-          name: 'Zerya Betül',
-          surname: 'Baran',
-          birthYear: 2017,
-          birthCity: 34,
-        },
-      ];
-
-    const displayRender = (label: any) => {
-      return label[label.length - 1];
-    } 
-    const onDeleteChip = (index: number) => {
-        const data = totalClient;
-        const entry = data[index].split('|')
-        data.splice(index, 1);
-        changeTotalClient(data);
-        changeName(entry[0].trim());
-        changeNumberClient(entry[1].trim() === 'N/A' ? '' : entry[1].trim() );
+    const loadData = async () => {
+      const data = await consumeApi.getEmployer();
+      
+      if(data.etat === Etat.SUCCESS) {
+        const result = data.result as any[];
+      const dataWithKey = result.map(value => {
+        return {...value, key: value.id}
+      })
+        setEmployers(dataWithKey);
+        setIsFetch(false);
+      } else {
+        localStorage.clear();
+        navigate('/signin');
+        
+      }
     }
+    const connection = async () => {
+      if (name.length > 4 && piece.length > 5 && password.length > 7 && numberClient.length === 10 && roleChoie !== '') {
+          message.loading("Enregistrement en cours")
+          .then(async () => {
+            const createAdmin = await consumeApi.createAdmin(name,piece,'+225', roleChoie,numberClient,password);
+                if(createAdmin.etat === Etat.SUCCESS) {
+                    message.success(`Un nouvelle ${roleChoie} a été ajouté.`);
+                    loadData();
+                    changePiece('');
+                    changePassword('');
+                    changeName('');
+                    changeNumberClient('');
+                } else if(createAdmin.etat === Etat.ISEXIST) {
+                    message.warning('Ce numero appartient à un autre employé');
+                } else {
+                  const error = createAdmin.error as Error;
+                  message.error(error.message);
+              }
+          })
+          
+      }
+      else {
+          message.error("Veuillez remplir les champs convenablement")
+      }
+  }
+
+
 
     // Hooks Effet
     useEffect(() => {
-        /*function waitForAction(state: boolean) {
-            setTimeout(()=> setIsFetch(state), 2000)
+      loadData();
+    }, []);
+
+
+    const columns = [
+        { title: 'Name', dataIndex: 'name', key:'name',fixed: true },
+        { title: 'Email', dataIndex: 'email', key:'email',fixed: true },
+        { title: 'Prefix', dataIndex: 'prefix', key:'prefix',fixed: true },
+        { title: 'Numero', dataIndex: 'numero', key:'numero',fixed: true },
+        { title: 'Role', dataIndex: 'role', key:'role',fixed: true },
+        { title: 'Locked', dataIndex: 'admissible', key:'admissible',fixed: true,render: (tags:any) => {
+          const admissible = tags as boolean;
+          if(admissible) {
+            return (
+              <Tag color={'green'}>
+                Actif
+              </Tag>
+            );
+          } else {
+            return (
+              <Tag color={'volcano'}>
+                Verrouillé
+              </Tag>
+            );
+          }
         }
-        waitForAction(false)*/
-        setTimeout(()=> {
-          setIsFetch(false)
-        }, 2000)
-        // return () => {
-        //   setTimeout(()=> {
-        //     setIsFetch(false)
-        //   }, 2000)
-        //   setIsFetch(true)
-        // }<MaterialTables title={"Toutes les réservations"} columns={columns} data={data} />
-  
-      });
+        },
+      ];
+
+      const handleClickShowPassword = () => {
+        const oldViewPassWord = viewPassWord
+        setViewPassWord(!oldViewPassWord)
+      };
+    
+      const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+      };
+
+    
+
 
     if(isFetch) {
         return (
@@ -175,7 +195,7 @@ function Reserve(props: Props) {
             <>
                 <main>
                     <div className="pt-10">
-                        <MegaTitleProps title="Réservations" size='md' />
+                        <MegaTitleProps title="Ajout Subordonné" size='md' />
                         <Grid container spacing={1} style={{padding: 10}}>
                             <div className={classes.root}>
                                 <Accordion defaultExpanded>
@@ -188,29 +208,46 @@ function Reserve(props: Props) {
                                         <ReconciliationTwoTone twoToneColor={colorPrimary} style={{fontSize: 32}}/>
                                     </div>
                                     <div className={classes.column}>
-                                        <Typography className={classes.secondaryHeading}>Créer une réservation</Typography>
+                                        <Typography className={classes.secondaryHeading}>Créer un employé de section</Typography>
                                     </div>
                                     </AccordionSummary>
                                     <AccordionDetails className={classes.details}>
                                         <Grid container spacing={1} style={{padding: 10}}>
-                                            <Grid item xs={4}>
+                                            <Grid item xs={3}>
                                                 <TextInputField
                                                                 id='piece'
                                                                 className='createPiece'
                                                                 value={piece}
                                                                 required={true}
                                                                 variant="outlined"
-                                                                label="Numero pièce"
+                                                                label="email"
                                                                 onChange={(e) => changePiece(e.target.value)}
                                                             />
                                                             <br />
-                                                <Typography variant="caption">
-                                                    Choisir la periode de debut et fin de la reservation
-                                                    <br />
-                                                </Typography>
-                                                <RangePicker showTime onChange={(date, dateString)=> {
-                                                    console.log(date, dateString)
-                                                }} placeholder={["Date debut", "Date fin"]} />
+                                                            <br />
+                                                            <TextInputField
+                                                                id='password'
+                                                                className='createPassword'
+                                                                value={password}
+                                                                required={true}
+                                                                variant="outlined"
+                                                                label="Mot de passe"
+                                                                suffix={
+                                                                  <IconButton
+                                                                      aria-label="toggle password visibility"
+                                                                      onClick={handleClickShowPassword}
+                                                                      onMouseDown={handleMouseDownPassword}
+                                                                      edge="end"
+                                                                  >
+                                                                      {!viewPassWord ? <Visibility /> : <VisibilityOff />}
+                                                                  </IconButton>
+                                                              }
+                                                                type={viewPassWord ? 'text' : 'password'}
+                                                                onChange={(e) => changePassword(e.target.value)}
+                                                            />
+                                                            
+                                                
+                                                
                                             </Grid>
                                             <Grid item xs={8}>
                                             <Grid container spacing={1} >
@@ -240,19 +277,24 @@ function Reserve(props: Props) {
                                                         />
                                                 </Grid>
                                                 <Grid item xs={4}>
-                                                    <Cascader
-                                                          options={options}
-                                                          expandTrigger="click"
-                                                          displayRender={displayRender}
-                                                          onChange={(value)=> message.success(value)}
-                                                        />
+                                                  <Select
+                                                    showSearch
+                                                    placeholder="Select ROLE"
+                                                    style={{width: "100%"}}
+                                                    optionFilterProp="children"
+                                                    onChange={(value)=>{
+                                                      const newRole = value?.toString() ?? '';
+                                                      changeRoleChoice(newRole);
+                                                    }}
+                                                    
+                                                  >
+                                                    {roleArray.map((value, index) => (<Option key={index} value={value.value}>{value.value}</Option>))}
+                                                  </Select>
                                                 </Grid>
                                                 
                                             </Grid>
 
-                                            <Grid container spacing={1} style={{padding: 5, overflow: 'auto'}}>
-                                            {totalClient.map((value, index) => index > 0 ? <Grid key={index} item xs={4}><Chip label={value} variant="outlined" size="small" icon={<PermIdentity />} onDelete={()=> {onDeleteChip(index)}} /></Grid> : null)}
-                                            </Grid>
+                                          
                                             
                                             </Grid>
                                         </Grid>
@@ -260,7 +302,7 @@ function Reserve(props: Props) {
                                     </AccordionDetails>
                                     <Divider />
                                     <AccordionActions>
-                                    <Button size="small" color="primary">
+                                    <Button size="small" color="primary" onClick={connection}>
                                         Enregistrer
                                     </Button>
                                     </AccordionActions>
@@ -269,7 +311,10 @@ function Reserve(props: Props) {
                         </Grid>
                         <Grid container spacing={1} style={{padding: 20}}>
                             <div className={classes.root}>
-                            
+                              <div className={classes.column}>
+                                <Typography className={classes.secondaryHeading}>List Subordonnée</Typography>
+                                <Table columns={columns} dataSource={employers}/>
+                              </div>
                             </div>
                         </Grid>
                     </div>

@@ -1,5 +1,5 @@
 import React from 'react'
-import {FormControlLabel, FormGroup} from '@material-ui/core';
+import {FormControlLabel, FormGroup} from '@mui/material';
 import CheckBoxItem from './CheckBoxItem';
 import { Props } from '../../../Interfaces/Props/CheckBoxsProps'
 

@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import {Container, Grid, Card, IconButton} from '@material-ui/core';
+import {Container, Grid, Card, IconButton} from '@mui/material';
 import logo from '../../Assets/Images/png/logo_transparent.png'
 import welcome from '../../Assets/Images/svg/good people.svg'
 import MegaTitleProps from '../Components/MegaTitle/MegaTitle';
@@ -7,24 +7,73 @@ import TextInputField from '../Components/TextInputField/TextInputField';
 import Buttons from '../Components/Buttons/Buttons';
 import { message } from 'antd';
 import { btn_color_primary } from '../../Constants/ClassName/Buttons';
-import {Visibility, VisibilityOff} from '@material-ui/icons';
-import Links from '../Components/Links/Links';
+import {Visibility, VisibilityOff} from '@mui/icons-material';
 import './Signin.scss';
 import { Props } from '../../Interfaces/Props/Navigation';
+import { ConsumeApi } from '../../ServiceWorker/ConsumeApi';
+import { Etat, BuiltinRoleAdmin } from '../../Constants/Enum';
+import { useNavigate } from "react-router-dom";
 
 function Signin(props: Props) {
+    let navigate = useNavigate();
+    const consumeApi: ConsumeApi = new ConsumeApi();
     const [viewPassWord, setViewPassWord] = useState(false);
-    const [numberHotel, changeNumberHotel] = useState('');
+    const [numberAdmin, changenumberAdmin] = useState('');
     const [password, changePassword] = useState('');
 
 
 
-    const connection = async () => {
+    const connection = () => {
         if (!disabled) {
             message.loading("Connexion en cours")
-            setTimeout(()=>{
-                props.history.push('/home')
-            }, 3000)
+            .then(async () => {
+                const info = await consumeApi.signin(numberAdmin, password);
+                if(info.etat === Etat.SUCCESS) {
+                    localStorage.setItem('recovery', info.result.recovery);
+                    localStorage.setItem('ident', info.result.ident);
+                    localStorage.setItem('role', info.result.role);
+                    localStorage.setItem('name', info.result.name);
+                    switch (info.result.role) {
+                        case BuiltinRoleAdmin.SUPER_ADMIN:
+                            navigate('/home');
+                            break;
+                        case BuiltinRoleAdmin.ADMIN_ACTUALITY:
+                            navigate('/home/actuality');
+                            break;
+                        case BuiltinRoleAdmin.ADMIN_DEALS:
+                            navigate('/home/deals');
+                            break;
+                        case BuiltinRoleAdmin.ADMIN_EVENTS:
+                            navigate('/home/event');
+                            break;
+                        case BuiltinRoleAdmin.ADMIN_COVOITURAGES:
+                            navigate('/home/covoiturage');
+                            break;
+                        case BuiltinRoleAdmin.EMPLOYER_ACTUALITY:
+                            navigate('/home/actualityEmployer');
+                            break;
+                        case BuiltinRoleAdmin.EMPLOYER_DEALS:
+                            navigate('/home/dealsEmployer');
+                            break;
+                        case BuiltinRoleAdmin.EMPLOYER_EVENTS:
+                            navigate('/home/eventEmployer');
+                            break;
+                        case BuiltinRoleAdmin.EMPLOYER_COVOITURAGES:
+                            navigate('/home/covoiturageEmployer');
+                            break;
+                        case BuiltinRoleAdmin.SMALL_LEVEL:
+                            navigate('/home/viewer');
+                            break;
+                        default:
+                            navigate('/home/viewer');
+                            break;
+                    }
+                } else {
+                    message.error(info.error, 7);
+                }
+            })
+            
+            
         }
         else {
             message.error("Rassurez vous que votre numero est dans le bon format")
@@ -39,7 +88,7 @@ function Signin(props: Props) {
       const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
       };
-    const disabled =  (numberHotel.length === 8 && password.length > 3) ? false : true
+    const disabled =  (numberAdmin.length === 10 && password.length > 7) ? false : true
 
     return (
         <div className="signin flexbox flex-center">
@@ -59,14 +108,14 @@ function Signin(props: Props) {
                                             <Grid item xs={12} style={{paddingBottom: 20}}>
                                                 <TextInputField
                                                     id='number'
-                                                    className='numberHotel'
-                                                    value={numberHotel}
+                                                    className='numberAdmin'
+                                                    value={numberAdmin}
                                                     required={true}
                                                     variant="outlined"
                                                     prefix='+225'
                                                     type='number'
                                                     label='Numéro de reception'
-                                                    onChange={(e) => changeNumberHotel(e.target.value.toString())}
+                                                    onChange={(e) => changenumberAdmin(e.target.value.toString())}
                                                 />
                                                 
                                             </Grid>

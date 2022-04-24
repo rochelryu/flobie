@@ -1,11 +1,11 @@
 import React from 'react'
-import {InputAdornment, TextField} from '@material-ui/core';
+import {InputAdornment, TextField} from '@mui/material';
 import { Props } from '../../../Interfaces/Props/TextInputFieldProps'
 import { className } from '../../../Constants/function'
 import { colorPrimary, colorError, colorGrey } from '../../../Constants/color';
 import {
     withStyles,
-  } from '@material-ui/core/styles';
+  } from '@mui/styles';
   const ValidationTextField = withStyles({
     root: {
       width: '90%',
@@ -35,6 +35,7 @@ function TextInputField(props: Props) {
                 placeholder={props.placeholder}
                 variant={props.variant}
                 type={props.type || "text"}
+                disabled={props.disabled}
                 value={props.value}
                 InputProps={{
                   readOnly: props.readOnly || false,
