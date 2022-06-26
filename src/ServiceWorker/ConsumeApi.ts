@@ -15,6 +15,7 @@ export class ConsumeApi {
     
     private createReseau_url = this.base_url + "/lastLevel/createReseau";
     private validateRetrait_url = this.base_url + "/lastLevel/validateRetrait";
+    private delRechargement_url = this.base_url + "/lastLevel/delRechargement";
     private validateRechargement_url = this.base_url + "/lastLevel/validateRechargement";
     private dropTravelDemande_url = this.base_url + "/lastLevel/dropTravelDemande";
     private dropPassagerDemande_url = this.base_url + "/lastLevel/dropPassagerDemande";
@@ -158,6 +159,21 @@ export class ConsumeApi {
             retraitId,
         };
         const response =  await post(this.validateRetrait_url, body);
+        if(response.etat === Etat.SUCCESS) {
+            localStorage.setItem('recovery', response.result.recovery);
+        }
+        return response;
+    }
+
+    async delRechargement(depositId: string): Promise<ResponseInterface> {
+        const id = localStorage.getItem('ident');
+        const recovery = localStorage.getItem('recovery');
+        const body = {
+            id,
+            recovery,
+            depositId,
+        };
+        const response =  await post(this.delRechargement_url, body);
         if(response.etat === Etat.SUCCESS) {
             localStorage.setItem('recovery', response.result.recovery);
         }

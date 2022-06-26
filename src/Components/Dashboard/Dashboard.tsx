@@ -7,7 +7,7 @@ import Buttons from '../Components/Buttons/Buttons';
 import { btn_color_primary } from '../../Constants/ClassName/Buttons';
 import { message, Affix, Table, Tabs, Tag } from 'antd';
 import MegaTitleProps from '../Components/MegaTitle/MegaTitle';
-import { MehTwoTone, DollarCircleOutlined, DownCircleOutlined, SearchOutlined, CarTwoTone, ShoppingTwoTone, CalendarTwoTone } from '@ant-design/icons';
+import { MehTwoTone, DollarCircleOutlined, DownCircleOutlined, SearchOutlined, CarTwoTone, ShoppingTwoTone, CalendarTwoTone, CloudSyncOutlined } from '@ant-design/icons';
 import blur from '../../Assets/Images/svg/blur.svg'
 import TextInputField from '../Components/TextInputField/TextInputField';
 import BoxLoadings from '../Components/Loading/BoxLoading';
@@ -427,18 +427,22 @@ export default function Dashboard(props: Props) {
                             </div>
                           </Grid>
                           <Grid item xs={3}>
-                            <Buttons
-                                  id='recherche'
-                                  title='Rechercher'
-                                  shape="round"
-                                  block={true}
-                                  type="dashed"
-                                  className={!disabled ? btn_color_primary : ''}
-                                  disabled={disabled}
-                                  onClick={connection}
-                                  icon={<SearchOutlined color={'#fff'} />}
-                                  tooltip='Lancer la recherche'
-                            />
+                                <Buttons
+                                    key="reload"
+                                    id='reload'
+                                    shape="round"
+                                    type="ghost"
+                                    title="Actualiser"
+                                    icon={<CloudSyncOutlined color={'#fff'} />}
+                                    tooltip='Actualiser'
+                                    onClick={()=> {
+                                        message.loading('Actualisation...')
+                                        .then(async ()=> {
+                                            await loadData();
+                                            message.success('Actualisation terminé');
+                                        })
+                                    }}
+                                />
                           </Grid>
                         </Grid>
                         <Grid container spacing={3} style={{padding: 0, marginBottom: 5}}>
@@ -446,9 +450,9 @@ export default function Dashboard(props: Props) {
                             <DisplayData dataSourceTabsOne={dataDashboard.dataForRechargement} dataSourceTabsTwo={dataDashboard.dataForRetrait} />
                           </Grid>
                           <Grid item xs={5}>
-                            <Card style={{padding:10, marginTop:57}}>
+                            <Card style={{padding:0, marginTop:57}}>
                               <RadarChart
-                                  cx={225}
+                                  cx={195}
                                   cy={175}
                                   outerRadius={100}
                                   width={450}
@@ -469,15 +473,15 @@ export default function Dashboard(props: Props) {
                           </Grid>
 
                           <Grid item xs={12}>
-                            <Card style={{padding:10}}>
+                            <Card style={{padding:0}}>
                                 <LineChart
-                                  width={1200}
+                                  width={1000}
                                   height={300}
                                   data={dataDashboard.dataLine}
                                   margin={{
-                                    top: 5,
-                                    right: 30,
-                                    left: 20,
+                                    top: 15,
+                                    right: 0,
+                                    left: 0,
                                     bottom: 5,
                                   }}
                                 >
@@ -486,12 +490,12 @@ export default function Dashboard(props: Props) {
                                   <YAxis />
                                   <Tooltip />
                                   <Legend />
-                                  <Line type="monotone" name='Produit Simple' dataKey="simpleProduct" stroke="#011f4b" activeDot={{ r: 8 }} />
-                                  <Line type="monotone" name='Produit VIP' dataKey="vipProduct" stroke="#82ca9d" />
-                                  <Line type="monotone" name='Produit Retourné' dataKey="productNotStaisfait" stroke="#fed766" />
-                                  <Line type="monotone" name='Produit Satisfait' dataKey="productStaisfait" stroke="#8884d8" />
-                                  <Line type="monotone" name='Produit Validé automatiquement' dataKey="productOverideDate" stroke="#f37736" />
-                                  <Line type="monotone" name='Produit Non récupéré' dataKey="productNotRecup" stroke="#fe4a49" />
+                                  <Line type="monotone" name='Simple' dataKey="simpleProduct" stroke="#011f4b" activeDot={{ r: 8 }} />
+                                  <Line type="monotone" name='VIP' dataKey="vipProduct" stroke="#82ca9d" />
+                                  <Line type="monotone" name='Retourné' dataKey="productNotStaisfait" stroke="#fed766" />
+                                  <Line type="monotone" name='Satisfait' dataKey="productStaisfait" stroke="#8884d8" />
+                                  <Line type="monotone" name='Validé automatiquement' dataKey="productOverideDate" stroke="#f37736" />
+                                  <Line type="monotone" name='Non récupéré' dataKey="productNotRecup" stroke="#fe4a49" />
                                 </LineChart>
                               </Card>
                           </Grid>

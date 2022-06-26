@@ -7,9 +7,10 @@ import { makeStyles } from '@mui/styles';import Accordion from '@mui/material/Ac
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionActions from '@mui/material/AccordionActions';
-import { ReconciliationTwoTone, SaveOutlined } from '@ant-design/icons';
+import { CloudSyncOutlined, ReconciliationTwoTone, SaveOutlined } from '@ant-design/icons';
 import { colorPrimary } from '../../Constants/color';
 import UploadTwoToneIcon from '@mui/icons-material/UploadTwoTone';
+import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import BoxLoadings from '../Components/Loading/BoxLoading';
 import { Etat } from '../../Constants/Enum';
@@ -144,6 +145,23 @@ function MobilePayement(props: Props) {
         
   }
 
+  const delRechargement = async (depositId:string) => {
+    message.loading("Suppression en cours")
+    .then(async () => {
+      const createAdmin = await consumeApi.delRechargement(depositId);
+          if(createAdmin.etat === Etat.SUCCESS) {
+              await loadData();
+              message.success(`Suppression effectué`);
+          } else if(createAdmin.etat === Etat.ISEXIST) {
+              message.warning('Ce numero appartient à un autre employé');
+          } else {
+            const error = createAdmin.error as Error;
+            message.error(error.message);
+        }
+    })
+  
+}
+
     const submitManageRechargement = async() => {
       if (ref.length > 7 && numeroRechargement.length === 10 && reseau.indexOf(typeReseau) !== -1 && amount.length > 2 ) {
           message.loading("Enregistrement en cours")
@@ -250,6 +268,18 @@ function MobilePayement(props: Props) {
         }
         },
         { title: 'Date Enregistrement', dataIndex: 'registerDate', key:'registerDate',fixed: true },
+        { title: 'Action', key:'_id',render: (element:string,rowData:any) => {
+          return  <Buttons
+                    key={`delRecharment${rowData._id}`}
+                    id={`delRecharment${rowData._id}`}
+                    shape="round"
+                    type="dashed"
+                    icon={<DeleteTwoToneIcon color='warning' />}
+                    tooltip="Valider Retrait"
+                    onClick={async() => {await delRechargement(rowData._id);}}
+                />;
+              }
+        },
       ];
 
       const columnsRetrait = [
@@ -288,11 +318,27 @@ function MobilePayement(props: Props) {
                 <main>
                     <div className="pt-10">
                         <MegaTitleProps title="Manage Transaction" size='md' />
+                        <Buttons
+                                    key="reload"
+                                    id='reload'
+                                    shape="round"
+                                    type="ghost"
+                                    title="Actualiser"
+                                    icon={<CloudSyncOutlined color={'#fff'} />}
+                                    tooltip='Actualiser'
+                                    onClick={()=> {
+                                        message.loading('Actualisation...')
+                                        .then(async ()=> {
+                                            await loadData();
+                                            message.success('Actualisation terminé');
+                                        })
+                                    }}
+                                />
                         <Grid container spacing={1} style={{padding: 10}}>
                             <div className={classes.root}>
                                 <Tabs>
                                     <TabPane tab="Manage Rechargement" key="1">
-                                    <Grid container spacing={1} style={{padding: 20}}>
+                                      <Grid container spacing={1} style={{padding: 20}}>
                                           <div className={classes.root}>
                                               <Accordion defaultExpanded>
                                                   <AccordionSummary

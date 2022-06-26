@@ -7,7 +7,7 @@ import { makeStyles } from '@mui/styles';import Accordion from '@mui/material/Ac
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionActions from '@mui/material/AccordionActions';
-import { ReconciliationTwoTone, CloseCircleOutlined } from '@ant-design/icons';
+import { ReconciliationTwoTone, CloseCircleOutlined, CloudSyncOutlined } from '@ant-design/icons';
 import { colorPrimary } from '../../Constants/color';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -252,7 +252,7 @@ function EmployerCovoiturage(props: Props) {
                                         <ReconciliationTwoTone twoToneColor={colorPrimary} style={{fontSize: 32}}/>
                                     </div>
                                     <div className={classes.column}>
-                                        <Typography className={classes.secondaryHeading}>Detail Conducteur</Typography>
+                                        <Typography className={classes.secondaryHeading}>Detail Passager</Typography>
                                     </div>
                                     </AccordionSummary>
                                     <AccordionDetails className={classes.details}>
@@ -291,7 +291,25 @@ function EmployerCovoiturage(props: Props) {
                         <Grid container spacing={1} style={{padding: 20}}>
                             <div className={classes.root}>
                               <div className={classes.column}>
-                                <Typography className={classes.secondaryHeading}>List Demande Conducteur en cours</Typography>
+                                <Typography className={classes.secondaryHeading}>List Demande Passager en cours</Typography>
+                                <Buttons
+                                    key="reload"
+                                    id='reload'
+                                    shape="round"
+                                    type="ghost"
+                                    title="Actualiser"
+                                    icon={<CloudSyncOutlined color={'#fff'} />}
+                                    tooltip='Actualiser'
+                                    onClick={()=> {
+                                        message.loading('Actualisation...')
+                                        .then(async ()=> {
+                                            await loadData();
+                                            setItemSelect('');
+                                            setSelected(0);
+                                            message.success('Actualisation terminé');
+                                        })
+                                    }}
+                                />
                                 <Table columns={columns} dataSource={travellersDemandes} />
                               </div>
                             </div>
