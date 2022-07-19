@@ -72,6 +72,9 @@ function  arrayOptionForRole (role: string): {value: string}[] {
       {
         value: BuiltinRoleAdmin.ADMIN_COVOITURAGES,
       },
+      {
+        value: BuiltinRoleAdmin.ADMIN_MOBILE_MONEY_BOOT,
+      },
     ];
   } else if(levelRole === 1) {
     return [

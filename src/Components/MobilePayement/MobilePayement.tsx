@@ -241,6 +241,7 @@ function MobilePayement(props: Props) {
           }
         }
         },
+        { title: 'Nouveau Solde', dataIndex: 'newSolde', key:'newSolde',fixed: true },
       ];
 
       const columnsScecond = [
