@@ -93,8 +93,8 @@ function MobilePayement(props: Props) {
             return {...value, key: value._id}
           });
           setMobileMoney(allMobileMoneys);
-          setRetrait(retraitClientInWaits);
-          setRechargement(verifyTxHashInWaits);
+          setRetrait(retraitClientInWaits.reverse());
+          setRechargement(verifyTxHashInWaits.reverse());
           setIsFetch(false);
         } else {
           localStorage.clear();
@@ -224,7 +224,7 @@ function MobilePayement(props: Props) {
         { title: 'Numero', dataIndex: 'numero', key:'numero' },
         { title: 'Derniere date d\'activité', dataIndex: 'lasteUpdate', key:'lasteUpdate' },
         
-        { title: 'Action', dataIndex: 'isActive', key:'isActive',render: (info:any) => {
+        { title: 'Etat', dataIndex: 'isActive', key:'isActive',render: (info:any) => {
           const isActive = info as boolean;
           if(isActive) {
             return (

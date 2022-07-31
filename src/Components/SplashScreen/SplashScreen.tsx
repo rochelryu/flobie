@@ -15,15 +15,15 @@ function SplashScreen(props: Props) {
     return (
         <div className="box splashScreen">
             <div className="relative">
-                <h1>FINDER CLIENT</h1>
+                <h1>SHOUZ ADMIN</h1>
             </div>
-            <h4 className="absolute madeBy">Par ICORE</h4>
+            <h4 className="absolute madeBy">Par CLUB12</h4>
             
             
-            {/* <div className="wave"></div>
+            <div className="wave"></div>
             <div className="wave1"></div>
             <div className="wave2"></div>
-            <div className="wave3"></div> */}
+            <div className="wave3"></div>
         </div>
     )
 }
