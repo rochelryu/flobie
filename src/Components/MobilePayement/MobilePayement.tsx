@@ -166,7 +166,7 @@ function MobilePayement(props: Props) {
       if (ref.length > 7 && numeroRechargement.length === 10 && reseau.indexOf(typeReseau) !== -1 && amount.length > 2 ) {
           message.loading("Enregistrement en cours")
           .then(async () => {
-            const createAdmin = await consumeApi.validateRechargement(typeReseau, numeroRechargement,parseInt(amount, 10),ref);
+            const createAdmin = await consumeApi.validateRechargement(typeReseau, numeroRechargement,amount,ref);
                 if(createAdmin.etat === Etat.SUCCESS) {
                     message.success(`Un nouveau reseau a été ajouté.`);
                     loadData();

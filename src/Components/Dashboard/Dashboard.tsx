@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { PieChart, Pie, Sector, Cell, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import CheckBoxs from '../Components/CheckBox/CheckBoxs';
 import { format } from 'date-fns';
+import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import './Dashboard.scss'
 
 const { TabPane } = Tabs;
@@ -113,6 +114,9 @@ export default function Dashboard(props: Props) {
     const navigate = useNavigate();
     const consumeApi: ConsumeApi = new ConsumeApi();
     const [searchItems, setSearchItems] = useState('');
+    const [titleCategorieUpdate, changeTitleCategorieUpdate] = useState('');
+    const [idCategorieUpdate, changeIdCategorieUpdate] = useState('');
+    const [domaineCategorieUpdate, changeDomaineCategorieUpdate] = useState<string[]>([]);
     const [titleCategorie, changeTitleCategorie] = useState('');
     const [visible, setVisible] = useState(false);
     const [disabled, setDisabled] = useState(true);
@@ -184,12 +188,33 @@ export default function Dashboard(props: Props) {
     }
 
 
-    const handleOk = () => {
-        setloading(true)
-        setTimeout(()=>{
-            setloading(false)
-            setVisible(false)
-        }, 2500)
+    const handleOk = async () => {
+            if(idCategorieUpdate !== '' && titleCategorieUpdate.length >= 3){
+                message.loading("Modification en cours")
+                .then(async () => {
+                  
+                  const datas = await consumeApi.updateCategorie(titleCategorieUpdate, idCategorieUpdate);
+                  console.log(datas);
+                  if(datas.etat === Etat.SUCCESS) {
+                    setVisible(false);
+                    setloading(false);
+                    changeIdCategorieUpdate("");
+                    changeDomaineCategorieUpdate([]);
+                    changeTitleCategorieUpdate("");
+                    
+                    await loadData();
+                    message.success("Modification effectué");
+                  } else {
+                    localStorage.clear();
+                    navigate('/signin');
+                  }
+                })
+            } else {
+                setloading(false)
+                setVisible(false)
+                message.error("le titre doit contenir au moins 3 caracteères");
+              
+          };
     }
     const handleCancel = () => {
             setVisible(false)
@@ -283,6 +308,20 @@ export default function Dashboard(props: Props) {
           })
     }
 
+    const handleEdition = (categoryId:string, domaines: [number], categoryName: string) => {
+        changeIdCategorieUpdate(categoryId);
+        changeTitleCategorieUpdate(categoryName);
+        console.log(domaines);
+        const domaineUpdate = domaines.map(domaine => {
+            
+            if(domaine === 0) return "Actualité";
+            else if (domaine === 1) return "E-commerce";
+            else return "Évènement";
+        });
+        changeDomaineCategorieUpdate(domaineUpdate);
+        setVisible(true);
+    }
+
 
 
     const COLORS = ['#F8B195', '#F67280', '#99B898', '#355C7D'];
@@ -300,7 +339,7 @@ export default function Dashboard(props: Props) {
                 <Modals
                  visible={visible}
                  loading={loading}
-                 title={'Ajouter une nouvelle réservation'}
+                 title={'Modification categorie'}
                  handleOk={handleOk}
                  handleCancel={handleCancel}
                  footer={
@@ -313,9 +352,17 @@ export default function Dashboard(props: Props) {
                             onClick={handleCancel}
                         />,
                         <Buttons
+                            key="delete"
+                            id='delete'
+                            title="Supprimer"
+                            shape="round"
+                            danger
+                            onClick={handleCancel}
+                        />,
+                        <Buttons
                             key="create"
                             id='create'
-                            title="Créer"
+                            title="Modifier"
                             shape="round"
                             className={btn_color_primary}
                             onClick={handleOk}
@@ -323,14 +370,29 @@ export default function Dashboard(props: Props) {
                      ]
                  }
                  childreen={
-                     <>
-                     
-                     </>
+                    <Grid container spacing={1} style={{padding: 10}}>
+                        <Grid item xs={6}>
+                            <TextInputField
+                                id='titleCategorie'
+                                className='titleCategorie'
+                                value={titleCategorieUpdate}
+                                required={true}
+                                variant="outlined"
+                                label="Titre categorie"
+                                onChange={(e) => changeTitleCategorieUpdate(e.target.value)}
+                        />
+                        </Grid>
+                        <Grid item xs={6}>
+                            {domaineCategorieUpdate.map((value,index)=>(
+                            <Tag key={index} color="magenta">{value}</Tag>)
+                            )}
+                        </Grid>
+                     </Grid>
                  }
                  />
                 <div className="pt-10">
                     <MegaTitleProps title="Tableau de Bord SUPER ADMIN" size='md' />
-                    <Grid container spacing={1} style={{padding: 10}}>
+                    <Grid container spacing={1} style={{padding: 5}}>
                       <Grid item xs={9}>
                         <Grid container spacing={3} style={{padding: 0, marginBottom: 20}}>
                           <Grid item xs={3}>
@@ -403,7 +465,7 @@ export default function Dashboard(props: Props) {
                         </Grid>
                         <Grid container spacing={3} style={{padding: 0, marginBottom: 5}}>
                           <Grid item xs={2}>
-                              <MegaTitleProps title="Réservations" size='xs' />
+                              <MegaTitleProps title="Transactions" size='xs' />
                           </Grid>
                           <Grid item xs={7}>
                             <div className="container shadow border-radius btn_color_white flexbox flex-center">
@@ -449,8 +511,10 @@ export default function Dashboard(props: Props) {
                           <Grid item xs={7}>
                             <DisplayData dataSourceTabsOne={dataDashboard.dataForRechargement} dataSourceTabsTwo={dataDashboard.dataForRetrait} />
                           </Grid>
-                          <Grid item xs={5}>
-                            <Card style={{padding:0, marginTop:57}}>
+                          <Grid item xs={5} style={{paddingTop:57}}>
+                          <MegaTitleProps title="Evènements du mois" size='sm' />
+                            <Card>
+                            
                               <RadarChart
                                   cx={195}
                                   cy={175}
@@ -473,6 +537,7 @@ export default function Dashboard(props: Props) {
                           </Grid>
 
                           <Grid item xs={12}>
+                            <MegaTitleProps title="Articles crées ces 30 jours" size='sm' />
                             <Card style={{padding:0}}>
                                 <LineChart
                                   width={1000}
@@ -501,6 +566,7 @@ export default function Dashboard(props: Props) {
                           </Grid>
 
                           <Grid item xs={12}>
+                          <MegaTitleProps title="Voyages en attente" size='sm' />
                             <Table
                               columns={columnsTravel}
                               dataSource={dataDashboard.allTravelInWait} 
@@ -521,7 +587,7 @@ export default function Dashboard(props: Props) {
                                 <TabPane tab="Vision Globale" key="Reserves1">
                                   <Grid container spacing={1} style={{padding: 10}}>
                                     <Grid item xs={12} style={{padding: 0}}>
-                                      <PieChart width={400} height={250}>
+                                      <PieChart width={400} height={220}>
                                           <Pie
                                             activeIndex={activeIndex}
                                             activeShape={renderActiveShape}
@@ -531,13 +597,14 @@ export default function Dashboard(props: Props) {
                                               { name: 'Deals', value: dataDashboard.reserveDeals },
                                               { name: 'Travels', value: dataDashboard.reserveTravel },
                                             ]}
-                                            cx={200}
+                                            cx={180}
                                             cy={110}
                                             innerRadius={60}
                                             outerRadius={80}
                                             fill={colorPrimary}
                                             dataKey="value"
                                             onMouseEnter={onPieEnter}
+                                            
                                           >
                                             {COLORS.map((entry, index) => (
                                               <Cell key={`cell-${index}`} fill={entry} />
@@ -781,7 +848,7 @@ export default function Dashboard(props: Props) {
                                     <Grid container className='categorieList' spacing={1} style={{padding: 10}}>
                                         {dataDashboard.allcategorie.map((value:any, index) =>{
                                           if(value.domaine.indexOf(0) !== -1) {
-                                            return <Chip onClick={()=> togglePopularityCategorie(value._id)} key={value._id} label={value.name} avatar={<Avatar sx={{bgcolor: value.popularity === 1 ? colorPrimary: colorGreySmoothWith}}>{value.name.substring(0,1).toUpperCase()}</Avatar>} color="warning" variant="outlined" sx={{marginRight: 1, marginBottom:1}} />
+                                            return <Chip deleteIcon={<EditTwoToneIcon color={value.popularity === 1 ? 'warning': 'inherit'} />} onDelete={()=> handleEdition(value._id, value.domaine, value.name)} onClick={()=> togglePopularityCategorie(value._id)} key={value._id} label={value.name} avatar={<Avatar sx={{bgcolor: value.popularity === 1 ? colorPrimary: colorGreySmoothWith}}>{value.name.substring(0,1).toUpperCase()}</Avatar>} color="warning" variant="outlined" sx={{marginRight: 1, marginBottom:1}} />
                                           }
                                         })}
                                         
@@ -791,7 +858,7 @@ export default function Dashboard(props: Props) {
                                       <Grid container className='categorieList' spacing={1} style={{padding: 10}}>
                                         {dataDashboard.allcategorie.map((value:any, index) =>{
                                           if(value.domaine.indexOf(1) !== -1) {
-                                            return <Chip onClick={()=> togglePopularityCategorie(value._id)} key={value._id} label={value.name} avatar={<Avatar sx={{bgcolor: value.popularity === 1 ? colorPrimary: colorGreySmoothWith}}>{value.name.substring(0,1).toUpperCase()}</Avatar>} color="warning" variant="outlined" sx={{marginRight: 1, marginBottom:1}} />
+                                            return <Chip deleteIcon={<EditTwoToneIcon color={value.popularity === 1 ? 'warning': 'inherit'} />} onDelete={()=> handleEdition(value._id, value.domaine, value.name)} onClick={()=> togglePopularityCategorie(value._id)} key={value._id} label={value.name} avatar={<Avatar sx={{bgcolor: value.popularity === 1 ? colorPrimary: colorGreySmoothWith}}>{value.name.substring(0,1).toUpperCase()}</Avatar>} color="warning" variant="outlined" sx={{marginRight: 1, marginBottom:1}} />
                                           }
                                         })}
                                         
@@ -799,9 +866,9 @@ export default function Dashboard(props: Props) {
                                   </TabPane>
                                   <TabPane tab="Event" key="4">
                                       <Grid container className='categorieList' spacing={1} style={{padding: 10}}>
-                                        {dataDashboard.allcategorie.map((value:any, index) =>{
+                                        {dataDashboard.allcategorie.map((value:any) =>{
                                           if(value.domaine.indexOf(2) !== -1) {
-                                            return <Chip onClick={()=> togglePopularityCategorie(value._id)} key={value._id} label={value.name} avatar={<Avatar sx={{bgcolor: value.popularity === 1 ? colorPrimary: colorGreySmoothWith}}>{value.name.substring(0,1).toUpperCase()}</Avatar>} color="warning" variant="outlined" sx={{marginRight: 1, marginBottom:1}} />
+                                            return <Chip deleteIcon={<EditTwoToneIcon color={value.popularity === 1 ? 'warning': 'inherit'} />} onDelete={()=> handleEdition(value._id, value.domaine, value.name)} onClick={()=> togglePopularityCategorie(value._id)} key={value._id} label={value.name} avatar={<Avatar sx={{bgcolor: value.popularity === 1 ? colorPrimary: colorGreySmoothWith}}>{value.name.substring(0,1).toUpperCase()}</Avatar>} color="warning" variant="outlined" sx={{marginRight: 1, marginBottom:1}} />
                                           }
                                         })}
                                         

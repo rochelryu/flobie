@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { Props } from '../../Interfaces/Props/Navigation';
 import MegaTitleProps from '../Components/MegaTitle/MegaTitle';
 import { Divider, Grid, Typography } from '@mui/material';
-import { message,Select, Table, Tag, Form, Input, Button,Space} from 'antd';
+import { message,Select, Table, Tag, Form, Input, Button,Space, Popconfirm} from 'antd';
 import { makeStyles } from '@mui/styles';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionActions from '@mui/material/AccordionActions';
+import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
+import VisibilityTwoToneIcon from '@mui/icons-material/VisibilityTwoTone';
 import { ReconciliationTwoTone, SaveOutlined,MinusCircleOutlined,PlusOutlined } from '@ant-design/icons';
 import { colorPrimary } from '../../Constants/color';
 import Buttons from '../Components/Buttons/Buttons';
@@ -16,12 +18,18 @@ import BoxLoadings from '../Components/Loading/BoxLoading';
 import { Etat } from '../../Constants/Enum';
 import { ConsumeApi } from '../../ServiceWorker/ConsumeApi';
 import { useNavigate } from "react-router-dom";
+import { format } from 'date-fns';
 
 
 const useStyles = makeStyles({
   root: {
     width: '100%',
     margin: 15
+  },
+  gridAction: {
+    width: "150px !important",
+    margin: 15,
+    padding: 5
   },
   heading: {
     fontSize: 20,
@@ -115,13 +123,46 @@ function AddActuality(props: Props) {
 
 
     const columns = [
-        { title: 'Title', dataIndex: 'title', key:'title',fixed: true },
+        { title: 'Action', dataIndex: '_id', key:'_id',fixed: true,render: (element:string,rowData:any) => {
+            return  <Grid container spacing={1} className={classes.gridAction}>
+                        <Grid item xs={6}>
+                            <Buttons
+                                key={`view${rowData._id}`}
+                                id={`view${rowData._id}`}
+                                shape="round"
+                                type="dashed"
+                                icon={<VisibilityTwoToneIcon color='primary' />}
+                                tooltip="Voir"
+                                onClick={() => {
+                                    /*changePictureEditActuality(rowData.cover);
+                                    changeTitleActuality(rowData.title);
+                                    changeidItemEdit(rowData.id);
+                                    changeContenAcituality(rowData.content);
+                                    setModalActualityVisible(true);*/
+                                    
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Popconfirm
+                                title="Êtes-vous sûr de vouloir supprimer"
+                                onConfirm={async() => {await delItem(rowData._id)}}
+                                onCancel={() => {}}
+                                okText="Oui"
+                                cancelText="Non"
+                            >
+                                <DeleteTwoToneIcon color='warning' />
+                            </Popconfirm>
+                        </Grid>
+                    </Grid>
+                } },
+        { title: 'Title', dataIndex: 'title', key:'title' },
         { title: 'Autheur', dataIndex: 'autherName', key:'email' },
         { title: 'Categorie', dataIndex: 'categorieName', key:'categorieName' },
         { title: 'Nbre Vue', dataIndex: 'numberVue', key:'numberVue' },
         
         { title: 'Popularité', dataIndex: 'popularity', key:'popularity',render: (info:any) => {
-          const popularity = info.popularity as number;
+          const popularity = info as number;
           if(popularity === 2) {
             return (
               <Tag color={'green'}>
@@ -137,12 +178,32 @@ function AddActuality(props: Props) {
           }
         }
         },
-        { title: 'Date Enr', dataIndex: 'registerDate', key:'registerDate',fixed: true },
+        { title: 'Date Enr', dataIndex: 'registerDate', key:'registerDate',render: (info:any) => {
+            const registerDate = info as string;
+            return <p>{format(new Date(registerDate), 'dd/MM/yyyy')} à {format(new Date(registerDate), 'HH:mm')}</p>;
+          } },
       ];
 
       const onCategorieChange = (value: string) => {
         form.setFieldsValue({ categorie: value });
       };
+
+      const delItem = async (itemId:string) => {
+        message.loading("Suppression en cours")
+        .then(async () => {
+            console.log(itemId);
+          const deleteItem = await consumeApi.deleteActuality(itemId);
+          console.log(deleteItem);
+              if(deleteItem.etat === Etat.SUCCESS) {
+                  await loadData();
+                  message.success(`Suppression effectué`);
+              } else {
+                const error = deleteItem!.error as Error;
+                message.error(error.message);
+            }
+        })
+      
+    }
 
     
 

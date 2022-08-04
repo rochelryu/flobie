@@ -10,6 +10,7 @@ export class ConsumeApi {
     private createAdmin_url = this.base_url + "/lastLevel/createAdmin";
     private changePassword_url = this.base_url + "/lastLevel/changePassword";
     private createCategorie_url = this.base_url + "/lastLevel/insideCategorie";
+    private updateCategorie_url = this.base_url + "/lastLevel/updateCategorie";
     private togglePopularityCategorie_url = this.base_url + "/lastLevel/togglePopularityCategorie";
     private retraitReserve_url = this.base_url + "/lastLevel/retraitReserve";
     
@@ -22,6 +23,7 @@ export class ConsumeApi {
     private validateTravelDemande_url = this.base_url + "/lastLevel/validateTravelDemande";
     private validatePassagerDemande_url = this.base_url + "/lastLevel/validatePassagerDemande";
     private getActualities_url = this.base_url + "/lastLevel/getActualities";
+    private removeActuality_url = this.base_url + "/lastLevel/removeActuality";
     private getCommandes_url = this.base_url + "/lastLevel/getCommandes";
     private getTravellersDemandes_url = this.base_url + "/lastLevel/getTravellersDemandes";
     private getPassagersDemandes_url = this.base_url + "/lastLevel/getPassagersDemandes";
@@ -98,6 +100,21 @@ export class ConsumeApi {
             popularity
         };
         const response =  await post(this.createCategorie_url, body);
+        if(response.etat === Etat.SUCCESS) {
+            localStorage.setItem('recovery', response.result.recovery);
+        }
+        return response;
+    }
+    async updateCategorie(name: string,idCategorie: string): Promise<ResponseInterface> {
+        const id = localStorage.getItem('ident');
+        const recovery = localStorage.getItem('recovery');
+        const body = {
+            id,
+            recovery,
+            name,
+            idCategorie,
+        };
+        const response =  await post(this.updateCategorie_url, body);
         if(response.etat === Etat.SUCCESS) {
             localStorage.setItem('recovery', response.result.recovery);
         }
@@ -180,7 +197,7 @@ export class ConsumeApi {
         return response;
     }
 
-    async validateRechargement(typeReseau: string, numero: string,montant: number, ref: string): Promise<ResponseInterface> {
+    async validateRechargement(typeReseau: string, numero: string,montant: string, ref: string): Promise<ResponseInterface> {
         const id = localStorage.getItem('ident');
         const recovery = localStorage.getItem('recovery');
         const body = {
@@ -192,6 +209,21 @@ export class ConsumeApi {
             ref
         };
         const response =  await post(this.validateRechargement_url, body);
+        if(response.etat === Etat.SUCCESS) {
+            localStorage.setItem('recovery', response.result.recovery);
+        }
+        return response;
+    }
+
+    async deleteActuality(ident: string): Promise<ResponseInterface> {
+        const id = localStorage.getItem('ident');
+        const recovery = localStorage.getItem('recovery');
+        const body = {
+            id,
+            credentials:recovery,
+            idActuality:ident,            
+        };
+        const response =  await post(this.removeActuality_url, body);
         if(response.etat === Etat.SUCCESS) {
             localStorage.setItem('recovery', response.result.recovery);
         }
