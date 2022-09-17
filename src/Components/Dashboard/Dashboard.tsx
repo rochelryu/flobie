@@ -149,7 +149,7 @@ export default function Dashboard(props: Props) {
     const [amountRetraitEvent, setAmountRetraitEvent] = useState(0);
     const [amountRetraitDeals, setAmountRetraitDeals] = useState(0);
     const onPieEnter = useCallback(
-      (_, index) => {
+      (_:any, index:any) => {
          setActiveIndex(index);
       },
       [setActiveIndex]
@@ -765,6 +765,112 @@ export default function Dashboard(props: Props) {
                                       </Grid>                                      
                                   </Grid>
                                 </TabPane>
+                                <TabPane tab="Catégories" key="categories">
+                                <Grid container spacing={1} style={{paddingLeft: 10}}>
+                             
+                             <div className="mt-10 allWidth">
+                               <Tabs defaultActiveKey="1">
+                                 <TabPane tab="Création" key="1">
+                                   <Grid container spacing={1} style={{padding: 10}}>
+                                         <Grid item xs={12} style={{paddingBottom: 20}}>
+                                               <TextInputField
+                                                   id='titleCategorie'
+                                                   className='titleCategorie'
+                                                   value={titleCategorie}
+                                                   required={true}
+                                                   variant="outlined"
+                                                   type='text'
+                                                   label='Titre categorie'
+                                                   onChange={(e) => changeTitleCategorie(e.target.value)}
+                                               />
+                                               
+                                           </Grid>
+                                           <Grid item xs={12} style={{paddingBottom: 20}}>
+                                               <CheckBoxs
+                                                       row={true}
+                                                       labels={["Actualité", "Deals", "Event"]}
+                                                       items={
+                                                           [
+                                                               {
+                                                                   checked:checked[0],
+                                                                   id:'actu',
+                                                                   name:'actu',
+                                                                   className: 'actu',
+                                                               },
+                                                               {
+                                                                 checked:checked[1],
+                                                                 id:'deals',
+                                                                 name:'deals',
+                                                                 className: 'deals',
+                                                             },
+                                                             {
+                                                               checked:checked[2],
+                                                               id:'event',
+                                                               name:'event',
+                                                               className: 'event',
+                                                           },
+                                                           ]
+                                                       }
+                                                       onChange={onChecked}
+                                                   />
+                                           </Grid>
+                                           <Grid item xs={6} style={{paddingBottom: 20}}>
+                                             <Buttons
+                                                   id='activationSimple'
+                                                   title="Activer"
+                                                   shape="round"
+                                                   block={true}
+                                                   type='dashed'
+                                                   onClick={()=> createCategorie(0)}
+                                                />
+                                           </Grid>
+                                           <Grid item xs={6} style={{paddingBottom: 20}}>
+                                             <Buttons
+                                                   id='activationPopulaire'
+                                                   title="Activer & Populaire"
+                                                   shape="round"
+                                                   block={true}
+                                                   className={btn_color_primary}
+                                                   onClick={()=> createCategorie(1)}
+                                                />
+                                           </Grid>
+                                   </Grid>
+                                 </TabPane>
+                                 <TabPane tab="Actualité" key="2">
+                                   <Grid container className='categorieList' spacing={1} style={{padding: 10}}>
+                                       {dataDashboard.allcategorie.map((value:any, index) =>{
+                                         if(value.domaine.indexOf(0) !== -1) {
+                                           return <Chip deleteIcon={<EditTwoToneIcon color={value.popularity === 1 ? 'warning': 'inherit'} />} onDelete={()=> handleEdition(value._id, value.domaine, value.name)} onClick={()=> togglePopularityCategorie(value._id)} key={value._id} label={value.name} avatar={<Avatar sx={{bgcolor: value.popularity === 1 ? colorPrimary: colorGreySmoothWith}}>{value.name.substring(0,1).toUpperCase()}</Avatar>} color="warning" variant="outlined" sx={{marginRight: 1, marginBottom:1}} />
+                                         }
+                                       })}
+                                       
+                                     </Grid>
+                                 </TabPane>
+                                 <TabPane tab="Deals" key="3">
+                                     <Grid container className='categorieList' spacing={1} style={{padding: 10}}>
+                                       {dataDashboard.allcategorie.map((value:any, index) =>{
+                                         if(value.domaine.indexOf(1) !== -1) {
+                                           return <Chip deleteIcon={<EditTwoToneIcon color={value.popularity === 1 ? 'warning': 'inherit'} />} onDelete={()=> handleEdition(value._id, value.domaine, value.name)} onClick={()=> togglePopularityCategorie(value._id)} key={value._id} label={value.name} avatar={<Avatar sx={{bgcolor: value.popularity === 1 ? colorPrimary: colorGreySmoothWith}}>{value.name.substring(0,1).toUpperCase()}</Avatar>} color="warning" variant="outlined" sx={{marginRight: 1, marginBottom:1}} />
+                                         }
+                                       })}
+                                       
+                                     </Grid>
+                                 </TabPane>
+                                 <TabPane tab="Event" key="4">
+                                     <Grid container className='categorieList' spacing={1} style={{padding: 10}}>
+                                       {dataDashboard.allcategorie.map((value:any) =>{
+                                         if(value.domaine.indexOf(2) !== -1) {
+                                           return <Chip deleteIcon={<EditTwoToneIcon color={value.popularity === 1 ? 'warning': 'inherit'} />} onDelete={()=> handleEdition(value._id, value.domaine, value.name)} onClick={()=> togglePopularityCategorie(value._id)} key={value._id} label={value.name} avatar={<Avatar sx={{bgcolor: value.popularity === 1 ? colorPrimary: colorGreySmoothWith}}>{value.name.substring(0,1).toUpperCase()}</Avatar>} color="warning" variant="outlined" sx={{marginRight: 1, marginBottom:1}} />
+                                         }
+                                       })}
+                                       
+                                     </Grid>
+                                 </TabPane>
+                                 
+                               </Tabs>
+                             </div>
+                           </Grid>
+                                </TabPane>
                               </Tabs>
                               </div>
                               
@@ -772,113 +878,6 @@ export default function Dashboard(props: Props) {
                               
                             
                             </Grid>
-
-                            <Grid container spacing={1} style={{paddingLeft: 10}}>
-                              <MegaTitleProps title="Categories" size='sm' />
-
-                              <div className="mt-10 allWidth">
-                                <Tabs defaultActiveKey="1">
-                                  <TabPane tab="Création" key="1">
-                                    <Grid container spacing={1} style={{padding: 10}}>
-                                          <Grid item xs={12} style={{paddingBottom: 20}}>
-                                                <TextInputField
-                                                    id='titleCategorie'
-                                                    className='titleCategorie'
-                                                    value={titleCategorie}
-                                                    required={true}
-                                                    variant="outlined"
-                                                    type='text'
-                                                    label='Titre categorie'
-                                                    onChange={(e) => changeTitleCategorie(e.target.value)}
-                                                />
-                                                
-                                            </Grid>
-                                            <Grid item xs={12} style={{paddingBottom: 20}}>
-                                                <CheckBoxs
-                                                        row={true}
-                                                        labels={["Actualité", "Deals", "Event"]}
-                                                        items={
-                                                            [
-                                                                {
-                                                                    checked:checked[0],
-                                                                    id:'actu',
-                                                                    name:'actu',
-                                                                    className: 'actu',
-                                                                },
-                                                                {
-                                                                  checked:checked[1],
-                                                                  id:'deals',
-                                                                  name:'deals',
-                                                                  className: 'deals',
-                                                              },
-                                                              {
-                                                                checked:checked[2],
-                                                                id:'event',
-                                                                name:'event',
-                                                                className: 'event',
-                                                            },
-                                                            ]
-                                                        }
-                                                        onChange={onChecked}
-                                                    />
-                                            </Grid>
-                                            <Grid item xs={6} style={{paddingBottom: 20}}>
-                                              <Buttons
-                                                    id='activationSimple'
-                                                    title="Activer"
-                                                    shape="round"
-                                                    block={true}
-                                                    type='dashed'
-                                                    onClick={()=> createCategorie(0)}
-                                                 />
-                                            </Grid>
-                                            <Grid item xs={6} style={{paddingBottom: 20}}>
-                                              <Buttons
-                                                    id='activationPopulaire'
-                                                    title="Activer & Populaire"
-                                                    shape="round"
-                                                    block={true}
-                                                    className={btn_color_primary}
-                                                    onClick={()=> createCategorie(1)}
-                                                 />
-                                            </Grid>
-                                    </Grid>
-                                  </TabPane>
-                                  <TabPane tab="Actualité" key="2">
-                                    <Grid container className='categorieList' spacing={1} style={{padding: 10}}>
-                                        {dataDashboard.allcategorie.map((value:any, index) =>{
-                                          if(value.domaine.indexOf(0) !== -1) {
-                                            return <Chip deleteIcon={<EditTwoToneIcon color={value.popularity === 1 ? 'warning': 'inherit'} />} onDelete={()=> handleEdition(value._id, value.domaine, value.name)} onClick={()=> togglePopularityCategorie(value._id)} key={value._id} label={value.name} avatar={<Avatar sx={{bgcolor: value.popularity === 1 ? colorPrimary: colorGreySmoothWith}}>{value.name.substring(0,1).toUpperCase()}</Avatar>} color="warning" variant="outlined" sx={{marginRight: 1, marginBottom:1}} />
-                                          }
-                                        })}
-                                        
-                                      </Grid>
-                                  </TabPane>
-                                  <TabPane tab="Deals" key="3">
-                                      <Grid container className='categorieList' spacing={1} style={{padding: 10}}>
-                                        {dataDashboard.allcategorie.map((value:any, index) =>{
-                                          if(value.domaine.indexOf(1) !== -1) {
-                                            return <Chip deleteIcon={<EditTwoToneIcon color={value.popularity === 1 ? 'warning': 'inherit'} />} onDelete={()=> handleEdition(value._id, value.domaine, value.name)} onClick={()=> togglePopularityCategorie(value._id)} key={value._id} label={value.name} avatar={<Avatar sx={{bgcolor: value.popularity === 1 ? colorPrimary: colorGreySmoothWith}}>{value.name.substring(0,1).toUpperCase()}</Avatar>} color="warning" variant="outlined" sx={{marginRight: 1, marginBottom:1}} />
-                                          }
-                                        })}
-                                        
-                                      </Grid>
-                                  </TabPane>
-                                  <TabPane tab="Event" key="4">
-                                      <Grid container className='categorieList' spacing={1} style={{padding: 10}}>
-                                        {dataDashboard.allcategorie.map((value:any) =>{
-                                          if(value.domaine.indexOf(2) !== -1) {
-                                            return <Chip deleteIcon={<EditTwoToneIcon color={value.popularity === 1 ? 'warning': 'inherit'} />} onDelete={()=> handleEdition(value._id, value.domaine, value.name)} onClick={()=> togglePopularityCategorie(value._id)} key={value._id} label={value.name} avatar={<Avatar sx={{bgcolor: value.popularity === 1 ? colorPrimary: colorGreySmoothWith}}>{value.name.substring(0,1).toUpperCase()}</Avatar>} color="warning" variant="outlined" sx={{marginRight: 1, marginBottom:1}} />
-                                          }
-                                        })}
-                                        
-                                      </Grid>
-                                  </TabPane>
-                                  
-                                </Tabs>
-                              </div>
-                            </Grid>
-                          
                           </div>
                         </Affix>     
                       </Grid>

@@ -188,6 +188,10 @@ function AddActuality(props: Props) {
         form.setFieldsValue({ categorie: value });
       };
 
+      const onSearch = (value: string) => {
+        console.log('search:', value);
+      };
+
       const delItem = async (itemId:string) => {
         message.loading("Suppression en cours")
         .then(async () => {
@@ -256,6 +260,11 @@ function AddActuality(props: Props) {
                                                     placeholder="Select categorie"
                                                     onChange={onCategorieChange}
                                                     allowClear
+                                                    optionFilterProp="children"
+                                                    onSearch={onSearch}
+                                                    filterOption={(input, option) =>
+                                                      (option!.children as unknown as string).toLowerCase().includes(input.toLowerCase())
+                                                    }
                                                     
                                                     >
                                                     {categorieActualities.map(value => (<Option key={value._id} value={value._id}>{value.name}</Option>))}

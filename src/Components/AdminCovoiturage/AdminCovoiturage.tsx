@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Props } from '../../Interfaces/Props/Navigation';
 import MegaTitleProps from '../Components/MegaTitle/MegaTitle';
 import { Divider, Grid, Typography } from '@mui/material';
-import { message,Select, Tag,Table, Space, Steps, Image, DatePicker, Empty, Skeleton, Card} from 'antd';
+import { message,Select,Table, Space, Steps, Image, DatePicker, Empty, Skeleton, Card} from 'antd';
 import { makeStyles } from '@mui/styles';import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -12,7 +12,6 @@ import { colorPrimary } from '../../Constants/color';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import BoxLoadings from '../Components/Loading/BoxLoading';
-import { level_role } from '../../Constants/function';
 import { Etat } from '../../Constants/Enum';
 import { ConsumeApi } from '../../ServiceWorker/ConsumeApi';
 import { useNavigate } from "react-router-dom";
@@ -55,27 +54,6 @@ const useStyles = makeStyles({
       },
     },
   });
-const { Option } = Select;
-const { Step } = Steps;
-
-const options = [
-    { label: 'Intra Ville', value: 'Intra Ville' },
-    { label: 'Extra Ville', value: 'Extra Ville' },
-  ];
-const steps = [
-    {
-      title: 'Vendeur',
-    },
-    {
-      title: 'En route',
-    },
-    {
-      title: 'Central',
-    },
-    {
-      title: 'Acheteur',
-    },
-  ];
 
 function AdminCovoiturage(props: Props) {
     const classes = useStyles();

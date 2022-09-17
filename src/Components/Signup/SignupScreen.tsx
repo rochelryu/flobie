@@ -41,7 +41,7 @@ function SignupScreen() {
                     changeNewPassword('');
                     changePassword('');
                 } else {
-                    message.error(info.error, 7);
+                    message.error(info.error as string, 7);
                 }
             })
             

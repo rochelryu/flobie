@@ -8,7 +8,7 @@ export interface Props {
     required: boolean,
     variant?: "outlined" | "filled" | "standard",
     type?: "number" | "text" | "password",
-    prefix?: React.Component | string
+    prefix?: any
     suffix?: any
     readOnly?: boolean,
     disabled?: boolean,
