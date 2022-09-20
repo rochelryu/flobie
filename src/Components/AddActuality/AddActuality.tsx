@@ -99,7 +99,7 @@ function AddActuality(props: Props) {
       }
     }
     const onFinish = async (values: any) => {
-        const createActuality = await consumeApi.createActuality(values.autherName,values.authorProfil,values.categorie, values.imageCover,values.title,values.sights);
+        const createActuality = await consumeApi.createActuality(values.autherName.trim(),values.authorProfil.trim(),values.categorie.trim(), values.imageCover.trim(),values.title.trim(),values.sights);
         if(createActuality.etat === Etat.SUCCESS) {
             message.success(`Un article a été ajouté.`);
             loadData();
