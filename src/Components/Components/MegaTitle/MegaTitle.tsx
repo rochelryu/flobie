@@ -27,7 +27,7 @@ function MegaTitleProps(props: Props) {
     }
     return (
         <Grid item xs={12}>
-            <h1 style={{fontSize: size, color: props.color ?? '#000'}} >{props.title.toLocaleUpperCase()}</h1>
+            <h1 style={{fontSize: size, color: props.color ?? '#000', margin:0}} >{props.title.toLocaleUpperCase()}</h1>
         </Grid>
     );
 }

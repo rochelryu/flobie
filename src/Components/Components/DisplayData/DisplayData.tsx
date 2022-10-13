@@ -7,6 +7,7 @@ import {
 } from '@ant-design/icons';
 
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Space } from 'antd';
 
 interface Props {
     dataSourceTabsOne: any[],
@@ -20,22 +21,27 @@ export default function DisplayData(props: Props) {
   const [display, setDisplay] = useState<number>(0);
   const {dataSourceTabsOne, dataSourceTabsTwo} = props
 
-  const barChatWidth= Math.floor(window.innerWidth /2.9);
+  const barChatWidth= Math.floor(window.innerWidth * 0.72);
   return (
     <>
 
       <Grid container>
         <Card style={{padding: 10, marginBottom:10}}>
         
-        <span onClick={()=> setDisplay(0)}>
-          <DownCircleTwoTone twoToneColor={display === 0 ? colorPrimary: colorGrey} style={{fontSize: '24px' }} />
-          
-        </span>
-        <span style={{color: display === 0 ? colorPrimary: colorGrey, marginLeft:12}}>Réchargements</span>
-        <span onClick={()=> setDisplay(1)} style={{marginLeft: 20}}>
-          <UpCircleTwoTone twoToneColor={display === 1 ? colorPrimary: colorGrey} style={{fontSize: '24px' }}/>
-        </span>
-        <span style={{color: display === 1 ? colorPrimary: colorGrey, marginLeft:12}}>Retraits</span>
+        <Space >
+          <span onClick={()=> setDisplay(0)} className='mousePointer'>
+            <span >
+              <DownCircleTwoTone twoToneColor={display === 0 ? colorPrimary: colorGrey} style={{fontSize: '24px' }} />
+            </span>
+            <span style={{color: display === 0 ? colorPrimary: colorGrey, marginLeft:12}}>Réchargements</span>
+          </span>
+          <span onClick={()=> setDisplay(1)} className='mousePointer'>
+            <span >
+            <UpCircleTwoTone twoToneColor={display === 1 ? colorPrimary: colorGrey} style={{fontSize: '24px' }}/>
+            </span>
+            <span style={{color: display === 1 ? colorPrimary: colorGrey, marginLeft:12}}>Retraits</span>
+          </span>
+        </Space>
         
         </Card>
     </Grid>

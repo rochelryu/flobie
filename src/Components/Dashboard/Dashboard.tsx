@@ -390,8 +390,7 @@ export default function Dashboard(props: Props) {
                      </Grid>
                  }
                  />
-                <div className="pt-10">
-                    <MegaTitleProps title="Tableau de Bord SUPER ADMIN" size='md' />
+                <div className="mt-50">
                     <Grid container spacing={1} style={{padding: 5}}>
                       <Grid item xs={9}>
                         <Grid container spacing={3} style={{padding: 0, marginBottom: 20}}>
@@ -508,10 +507,10 @@ export default function Dashboard(props: Props) {
                           </Grid>
                         </Grid>
                         <Grid container spacing={3} style={{padding: 0, marginBottom: 5}}>
-                          <Grid item xs={7}>
+                          <Grid item xs={12}>
                             <DisplayData dataSourceTabsOne={dataDashboard.dataForRechargement} dataSourceTabsTwo={dataDashboard.dataForRetrait} />
                           </Grid>
-                          <Grid item xs={5} style={{paddingTop:57}}>
+                          <Grid item xs={6} style={{paddingTop:57}}>
                           <MegaTitleProps title="Evènements du mois" size='sm' />
                             <Card>
                             
@@ -534,6 +533,36 @@ export default function Dashboard(props: Props) {
                                   />
                                 </RadarChart>
                               </Card>
+                          </Grid>
+                          <Grid item xs={6} style={{paddingTop:57}}>
+                          <MegaTitleProps title="Vision Globale" size='sm' />
+                            <Card style={{padding:0}}>
+                              <PieChart width={470} height={210}>
+                                            <Pie
+                                              activeIndex={activeIndex}
+                                              activeShape={renderActiveShape}
+                                              data={[
+                                                { name: 'Recharges', value: dataDashboard.reserveRecharge },
+                                                { name: 'Events', value: dataDashboard.reserveEvent },
+                                                { name: 'Deals', value: dataDashboard.reserveDeals },
+                                                { name: 'Travels', value: dataDashboard.reserveTravel },
+                                              ]}
+                                              cx={220}
+                                              cy={95}
+                                              innerRadius={60}
+                                              outerRadius={80}
+                                              fill={colorPrimary}
+                                              dataKey="value"
+                                              onMouseEnter={onPieEnter}
+                                              
+                                            >
+                                              {COLORS.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry} />
+                                              ))}
+                                            </Pie>
+                              </PieChart>
+                            </Card>
+                            
                           </Grid>
 
                           <Grid item xs={12}>
@@ -581,40 +610,10 @@ export default function Dashboard(props: Props) {
                         <Affix offsetTop={top}>
                           <div className="shadow btn_color_white allHeight allWidth border_radius">
                             <Grid container spacing={1} style={{padding: 10}}>
-                              <MegaTitleProps title="Reserves" size='sm' />
                               <div className="allWidth">
-                              <Tabs defaultActiveKey="Reserves1">
-                                <TabPane tab="Vision Globale" key="Reserves1">
-                                  <Grid container spacing={1} style={{padding: 10}}>
-                                    <Grid item xs={12} style={{padding: 0}}>
-                                      <PieChart width={400} height={220}>
-                                          <Pie
-                                            activeIndex={activeIndex}
-                                            activeShape={renderActiveShape}
-                                            data={[
-                                              { name: 'Recharges', value: dataDashboard.reserveRecharge },
-                                              { name: 'Events', value: dataDashboard.reserveEvent },
-                                              { name: 'Deals', value: dataDashboard.reserveDeals },
-                                              { name: 'Travels', value: dataDashboard.reserveTravel },
-                                            ]}
-                                            cx={180}
-                                            cy={110}
-                                            innerRadius={60}
-                                            outerRadius={80}
-                                            fill={colorPrimary}
-                                            dataKey="value"
-                                            onMouseEnter={onPieEnter}
-                                            
-                                          >
-                                            {COLORS.map((entry, index) => (
-                                              <Cell key={`cell-${index}`} fill={entry} />
-                                            ))}
-                                          </Pie>
-                                        </PieChart>
-                                    </Grid>
-                                  </Grid>
-                                </TabPane>
-                                <TabPane tab="Gestion" key="Reserves2">
+                              <Tabs defaultActiveKey="gestion">
+                                
+                                <TabPane tab="Gestion" key="gestion">
                                   <Grid container spacing={1} style={{padding: 10}}>
                                       <Grid item xs={5} style={{padding: 0, marginBottom: 10}}>
                                                   <TextInputField
@@ -882,8 +881,7 @@ export default function Dashboard(props: Props) {
                         </Affix>     
                       </Grid>
                      </Grid>
-                    
-                </div>
+                  </div>
                 </main>
         </>
       )
