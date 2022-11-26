@@ -194,7 +194,6 @@ export default function Dashboard(props: Props) {
                 .then(async () => {
                   
                   const datas = await consumeApi.updateCategorie(titleCategorieUpdate, idCategorieUpdate);
-                  console.log(datas);
                   if(datas.etat === Etat.SUCCESS) {
                     setVisible(false);
                     setloading(false);
@@ -311,7 +310,6 @@ export default function Dashboard(props: Props) {
     const handleEdition = (categoryId:string, domaines: [number], categoryName: string) => {
         changeIdCategorieUpdate(categoryId);
         changeTitleCategorieUpdate(categoryName);
-        console.log(domaines);
         const domaineUpdate = domaines.map(domaine => {
             
             if(domaine === 0) return "Actualité";

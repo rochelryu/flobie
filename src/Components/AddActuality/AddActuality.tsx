@@ -195,9 +195,7 @@ function AddActuality(props: Props) {
       const delItem = async (itemId:string) => {
         message.loading("Suppression en cours")
         .then(async () => {
-            console.log(itemId);
           const deleteItem = await consumeApi.deleteActuality(itemId);
-          console.log(deleteItem);
               if(deleteItem.etat === Etat.SUCCESS) {
                   await loadData();
                   message.success(`Suppression effectué`);

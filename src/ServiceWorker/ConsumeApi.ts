@@ -37,6 +37,7 @@ export class ConsumeApi {
     private setDeleveryProductLevelTwo_url = this.base_url + "/lastLevel/setDeleveryProductLevelTwo";
     private setDeleveryProductLevelThree_url = this.base_url + "/lastLevel/setDeleveryProductLevelThree";
     private activeMobileMoney_url = this.base_url + "/lastLevel/activeMobileMoney";
+    private approvedProductOrNot_url = this.base_url + "/lastLevel/approvedProductOrNot";
 
     // Assets File URL
 
@@ -345,6 +346,23 @@ export class ConsumeApi {
         }
         return response;
     }
+    async approvedProductOrNot(approved: boolean, comment: string, productId: string): Promise<ResponseInterface> {
+        const id = localStorage.getItem('ident');
+        const recovery = localStorage.getItem('recovery');
+        const body = {
+            id,
+            recovery,
+            approved,
+            comment,
+            productId
+        };
+        const response =  await post(this.approvedProductOrNot_url, body);
+        if(response.etat === Etat.SUCCESS) {
+            localStorage.setItem('recovery', response.result.recovery);
+        }
+        return response;
+    }
+
     async setDeleveryProductLevelThree(cityBuyer: string, itemSelect: string, priceDelivery:number, deliveryManInfo: string): Promise<ResponseInterface> {
         const id = localStorage.getItem('ident');
         const recovery = localStorage.getItem('recovery');

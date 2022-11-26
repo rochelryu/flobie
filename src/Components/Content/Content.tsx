@@ -13,6 +13,7 @@ import AdminCovoiturage from '../AdminCovoiturage/AdminCovoiturage';
 import MobilePayement from '../MobilePayement/MobilePayement';
 import EmployerCovoiturage from '../EmployerCovoiturage/EmployerCovoiturage';
 import SignupScreen from '../Signup/SignupScreen';
+import DashbordAdminDeals from '../DashbordAdminDeals/DashbordAdminDeals';
 
 // const PrivateRoute = ({component: Component, ...rest}) =>(
 //   <Route {...rest} render={props => localStorage.getItem("authToken") ? (<Component {...props}/>) :
@@ -28,6 +29,7 @@ function Content() {
                 <Route path={'/'}  element={<Dashboard />} /> {/* Route Supper Admin */}
                 <Route path={'/mobilepayement'}  element={<MobilePayement />} /> {/* Route Supper Admin */}
                 <Route path={'/actuality'} element={<DashboardAdmin />} /> {/* Route Admin Actualite */}
+                <Route path={'/deals'} element={<DashbordAdminDeals />} /> {/* Route Admin Deals */}
                 <Route path={'/dealsEmployer'} element={<EmployerDash />} /> {/* Route employer Deals */}
                 <Route path={'/covoiturage'} element={<AdminCovoiturage />} /> {/* Route Admin Covoiturage */}
                 <Route path={'/actualityEmployer'} element={<AddActuality />} />{/* Route employer Actualite */}

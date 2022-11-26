@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { Props } from '../../Interfaces/Props/Navigation';
 import MegaTitleProps from '../Components/MegaTitle/MegaTitle';
+import TextInputField from '../Components/TextInputField/TextInputField';
 import { Divider, Grid, Typography } from '@mui/material';
-import { message,Select, Tag,Table, Form, Steps, Radio, Input, Empty, Skeleton, InputNumber} from 'antd';
+import { message,Select, Carousel, Tag,Table, Form, Steps, Radio, Input, Empty, Skeleton, InputNumber} from 'antd';
 import { makeStyles } from '@mui/styles';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionActions from '@mui/material/AccordionActions';
-import { ReconciliationTwoTone, SwapRightOutlined, WalletOutlined,CloudSyncOutlined, UploadOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, ReconciliationTwoTone, SwapRightOutlined, WalletOutlined,CloudSyncOutlined, UploadOutlined } from '@ant-design/icons';
 import { colorError, colorPrimary } from '../../Constants/color';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -84,38 +85,43 @@ function EmployerDash(props: Props) {
     const navigate = useNavigate();
     const consumeApi: ConsumeApi = new ConsumeApi();
     const [form] = Form.useForm();
-    const [current, setCurrent] = React.useState(0);
-    const [levelDelivery, setLevelDelivery] = React.useState(0);
-    const [itemSelect, setItemSelect] = React.useState('');
-    const [travelId, setTavelId] = React.useState('');
+    const [current, setCurrent] = useState(0);
+    const [levelDelivery, setLevelDelivery] = useState(0);
+    const [itemSelect, setItemSelect] = useState('');
+    const [itemProductForValidate, setItemProductForValidate] = useState('');
+    const [commentProductForValidate, setCommentProductForValidate] = useState('');
+    const [productInfo, setProductInfo] = useState<any>({});
+    const [travelId, setTavelId] = useState('');
 
-    const [selected, setSelected] = React.useState(0);
+    const [selected, setSelected] = useState(0);
+    const [selectedProductInfo, setSelectedProductInfo] = useState(0);
     const [typeCommand, changeTypeCommand] = useState(options[0].value);
     
     const [isFetch, setIsFetch] = useState(true);
     const [commandes, setCommandes] = useState<any[]>([]);
+    const [dealsInWait, setDealsInWait] = useState<any[]>([]);
     const [travels, setTravels] = useState<any[]>([]);
 
-    const [seller, setSeller] = React.useState({
+    const [seller, setSeller] = useState({
         name: '',
         avatar: '',
         description: '',
         wallet: 0,
     });
-    const [buyer, setBuyer] = React.useState({
+    const [buyer, setBuyer] = useState({
         name: '',
         avatar: '',
         description: '',
         wallet: 0,
     });
-    const [product, setProduct] = React.useState({
+    const [product, setProduct] = useState({
         name: '',
         cover: '',
         description: '',
         wallet: 0,
     });
 
-    const [restReservation, setRestReservation] = React.useState({
+    const [restReservation, setRestReservation] = useState({
         citySeller: '',
           cityBuyer: '',
           travelId: '',
@@ -169,6 +175,26 @@ function EmployerDash(props: Props) {
                         message.error(error.message);
                     }
                 })
+        }
+      };
+
+    const validate = (type:boolean) => {
+        if(itemProductForValidate !== ''){
+            message.loading("Traitement en cours")
+                .then(async () => {
+                    const data = await consumeApi.approvedProductOrNot(type, commentProductForValidate, itemProductForValidate);
+                    if(data.etat === Etat.SUCCESS) {
+                        setCommentProductForValidate('');
+                        setSelectedProductInfo(0);
+                        await loadData();
+                        message.success("Traitement terminé.")
+                    } else {
+                        const error = data.error as Error;
+                        message.error(error.message);
+                    }
+                })
+        } else {
+            message.error("Veuillez sélectionner d'abord l'article");
         }
       };
 
@@ -361,7 +387,7 @@ function EmployerDash(props: Props) {
                         value={restReservation.priceDelivery}
                         placeholder="prix livraison"
                         onChange={(value)=> {
-                            setRestReservation({...restReservation, priceDelivery: value});
+                            setRestReservation({...restReservation, priceDelivery: value as number});
                         }}
                         />
                         </Grid>
@@ -583,9 +609,94 @@ function EmployerDash(props: Props) {
             )
         }
     }
+
+    const sectionDetailsProductInWait = (selectedItem:number) => {
+        if(selectedItem === 0) {
+            return (
+                <Empty />
+            )
+        } else {
+            return(
+                <>
+                    <Grid container spacing={1} style={{padding: 20}}>
+                        <Grid item xs={3}>
+                            <Grid container>
+                                <MegaTitleProps title="Images" size='md' />
+                                <Grid item xs={12}>
+                                    <Carousel dotPosition={"top"} autoplay>
+                                        {productInfo.images.map((value:any, index:number) =>(
+                                            <div key={`infoProduct${index}`}>
+                                                <img src={`https://app.shouz.network/store/${value}`} alt="Achète tout à ton prix, nous te livrons." width={"100%"} />
+                                            </div>
+
+                                        ))}
+                                        
+                                    </Carousel>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    {productInfo.video !== '' && (
+                                        <div>
+                                            <MegaTitleProps title="Video" size='md' />
+                                            <video width="100%" height="auto">
+                                                <source src={`https://app.shouz.network/store/${productInfo.video}`} type={`video/${productInfo.video.split('.')[0]}`} />
+                                            </video>
+                                        </div>
+                                    )}
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                        <Grid item xs={3}>
+                            <Cards
+                                title="Titre"
+                                id="titre"
+                                description={productInfo.name}
+                                actions={[<Grid container spacing={1} style={{padding: 10}}>
+                                    <Grid item xs={6}>
+                                        <p>Tel {productInfo.numero}</p>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <p>Lieu {productInfo.lieu}</p>
+                                    </Grid>
+                                </Grid>]}
+                            />
+                        </Grid>
+                        <Grid item xs={3}>
+                            <Cards
+                                title='Description'
+                                id='description'
+                                description={productInfo.describe}
+                                actions={[<Grid container spacing={1} style={{padding: 10}}>
+                                    <Grid item xs={6}>
+                                        <p>Prix {productInfo.price} XOF</p>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <p>Qte {productInfo.quantityTotal}</p>
+                                    </Grid>
+                                </Grid>]}
+                            />
+                        </Grid>
+                        <Grid item xs={3}>
+                            <TextInputField
+                                id='comment'
+                                required={false}
+                                className='comment'
+                                value={commentProductForValidate}
+                                variant="outlined"
+                                label="Commentaire"
+                                onChange={(e) => setCommentProductForValidate(e.target.value)}
+                            />
+                        </Grid>
+                </Grid>
+                </>
+            )
+        }
+    }
+
+
     const loadData = async () => {
       const data = await consumeApi.getCommandes();
       const resultCommandes = data.result.allCommande as any[];
+      const resultDealsInWait = data.result.allProductInWait as any[];
       const resultTravels = data.result.allTravel as any[];
       const allCommande = resultCommandes.map(value => {
         return {...value, key: value._id}
@@ -595,6 +706,7 @@ function EmployerDash(props: Props) {
       });
       if(data.etat === Etat.SUCCESS) {
         setCommandes(allCommande);
+        setDealsInWait(resultDealsInWait);
         setTravels(allTravel);
         setIsFetch(false);
       } else {
@@ -681,6 +793,32 @@ function EmployerDash(props: Props) {
           }
         }
         },
+        { title: 'Date Enr', dataIndex: 'registerDate', key:'registerDate',fixed: true },
+    ];
+
+
+    const columnsProductInWait = [
+        { title: 'N° Article', dataIndex: '_id', key:'_id',fixed: true, render: (info:any,rowData:any) => {
+            const _id = info as string;
+            return (
+                <Buttons
+                                        key={`select_article_${_id}`}
+                                        id={`select_article_${_id}`}
+                                        type="dashed"
+                                        title={_id}
+                                        tooltip={'Cliquez ici pour le gerer'}
+                                        onClick={()=> {
+                                            setProductInfo(rowData);
+                                            setItemProductForValidate(_id);
+                                            setSelectedProductInfo(1);
+                                        }}
+                                    />
+            )
+        } },
+        { title: 'Titre', dataIndex: 'name', key:'name',fixed: true },
+        { title: 'Prix', dataIndex: 'price', key:'price',fixed: true },
+        { title: 'Qte', dataIndex: 'quantityTotal', key:'quantityTotal',fixed: true },
+        { title: 'Lieu', dataIndex: 'lieu', key:'lieu',fixed: true },
         { title: 'Date Enr', dataIndex: 'registerDate', key:'registerDate',fixed: true },
     ];
     if(isFetch) {
@@ -770,6 +908,82 @@ function EmployerDash(props: Props) {
                                     }}
                                 />
                                 <Table columns={columns} dataSource={commandes} />
+                              </div>
+                            </div>
+                        </Grid>
+                    </div>
+                    <div className="pt-10">
+                        <MegaTitleProps title="Product In Wait" size='md' />
+                        <Grid container spacing={1} style={{padding: 10}}>
+                            <div className={classes.root}>
+                                <Accordion defaultExpanded>
+                                    <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel2c-content"
+                                    id="panel2c-header"
+                                    >
+                                    <div className={classes.column}>
+                                        <ReconciliationTwoTone twoToneColor={colorPrimary} style={{fontSize: 32}}/>
+                                    </div>
+                                    <div className={classes.column}>
+                                        <Typography className={classes.secondaryHeading}>Detail Article</Typography>
+                                    </div>
+                                    </AccordionSummary>
+                                    <AccordionDetails className={classes.details}>
+                                        <Grid container spacing={1} style={{padding: 10}}>
+                                            {sectionDetailsProductInWait(selectedProductInfo)}
+                                        </Grid>
+                                        
+                                    </AccordionDetails>
+                                    <Divider />
+                                    <AccordionActions>
+                                        <Buttons
+                                            key="validate"
+                                            id='valide'
+                                            shape="round"
+                                            type="primary"
+                                            title="Valider"
+                                            icon={<CheckCircleOutlined color={'#fff'} />}
+                                            tooltip='Valider article'
+                                            onClick={()=> validate(true)}
+                                        />
+                                        <Buttons
+                                            key="reject"
+                                            id='reject'
+                                            shape="round"
+                                            type="ghost"
+                                            title="Rejetter"
+                                            icon={<CloseCircleOutlined color={'#fff'} />}
+                                            tooltip='Rejetter article'
+                                            onClick={()=> validate(false)}
+                                        />
+                                    </AccordionActions>
+                                </Accordion>
+                            </div>
+                        </Grid>
+                        <Grid container spacing={1} style={{padding: 20}}>
+                            <div className={classes.root}>
+                              <div className={classes.column}>
+                                <Typography className={classes.secondaryHeading}>Liste Articles en cours</Typography>
+                                <Buttons
+                                    key="reload"
+                                    id='reload'
+                                    shape="round"
+                                    type="ghost"
+                                    title="Actualiser"
+                                    icon={<CloudSyncOutlined color={'#fff'} />}
+                                    tooltip='Actualiser'
+                                    onClick={()=> {
+                                        message.loading('Actualisation...')
+                                        .then(async ()=> {
+                                            await loadData();
+                                            setItemProductForValidate('');
+                                            setSelectedProductInfo(0);
+                                            message.success('Actualisation terminé');
+                                        })
+                                    }}
+                                />
+                                <Table columns={columnsProductInWait} dataSource={dealsInWait} />
                               </div>
                             </div>
                         </Grid>
