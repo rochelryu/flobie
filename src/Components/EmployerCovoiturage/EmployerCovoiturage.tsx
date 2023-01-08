@@ -310,7 +310,7 @@ function EmployerCovoiturage(props: Props) {
                                         })
                                     }}
                                 />
-                                <Table columns={columns} dataSource={travellersDemandes} />
+                                <Table columns={columns} dataSource={travellersDemandes} rowKey="_id" />
                               </div>
                             </div>
                         </Grid>

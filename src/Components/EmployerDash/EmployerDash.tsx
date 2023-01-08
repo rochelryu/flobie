@@ -3,7 +3,8 @@ import { Props } from '../../Interfaces/Props/Navigation';
 import MegaTitleProps from '../Components/MegaTitle/MegaTitle';
 import TextInputField from '../Components/TextInputField/TextInputField';
 import { Divider, Grid, Typography } from '@mui/material';
-import { message,Select, Carousel, Tag,Table, Form, Steps, Radio, Input, Empty, Skeleton, InputNumber} from 'antd';
+import { message,Select, Carousel, Tag,Table, Steps, Input, Empty, Skeleton, InputNumber, DatePicker, notification} from 'antd';
+import type { DatePickerProps } from 'antd';
 import { makeStyles } from '@mui/styles';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -19,7 +20,9 @@ import { ConsumeApi } from '../../ServiceWorker/ConsumeApi';
 import { useNavigate } from "react-router-dom";
 import Buttons from '../Components/Buttons/Buttons';
 import Cards from '../Components/Cards/Cards';
+import './EmployerDash.scss';
 
+type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
 const useStyles = makeStyles({
     root: {
@@ -58,16 +61,13 @@ const useStyles = makeStyles({
       },
     },
   });
-const { Option } = Select;
-const { Step } = Steps;
 
-const options = [
-    { label: 'Intra Ville', value: 'Intra Ville' },
-    { label: 'Extra Ville', value: 'Extra Ville' },
-  ];
-const steps = [
+const items = [
     {
-      title: 'Vendeur',
+      title: 'Assigner Livreur',
+    },
+    {
+        title: 'Vendeur',
     },
     {
       title: 'En route',
@@ -84,23 +84,24 @@ function EmployerDash(props: Props) {
     const classes = useStyles();
     const navigate = useNavigate();
     const consumeApi: ConsumeApi = new ConsumeApi();
-    const [form] = Form.useForm();
     const [current, setCurrent] = useState(0);
-    const [levelDelivery, setLevelDelivery] = useState(0);
+    const [levelDelivery, setLevelDelivery] = useState(-1);
     const [itemSelect, setItemSelect] = useState('');
     const [itemProductForValidate, setItemProductForValidate] = useState('');
     const [commentProductForValidate, setCommentProductForValidate] = useState('');
+    const [priceDelivery, setPriceDelivery] = useState('');
     const [productInfo, setProductInfo] = useState<any>({});
-    const [travelId, setTavelId] = useState('');
-
+    const [deliveryUserId, setDeliveryUserId] = useState('');
+    const [deliveryManInfo, changeDeliveryManInfo] = useState('');
+    const [dateDelivery, setDateDelivery] = useState('');
+    const [notificationApi, contextHolder] = notification.useNotification();
     const [selected, setSelected] = useState(0);
     const [selectedProductInfo, setSelectedProductInfo] = useState(0);
-    const [typeCommand, changeTypeCommand] = useState(options[0].value);
     
     const [isFetch, setIsFetch] = useState(true);
     const [commandes, setCommandes] = useState<any[]>([]);
     const [dealsInWait, setDealsInWait] = useState<any[]>([]);
-    const [travels, setTravels] = useState<any[]>([]);
+    const [allDeliveries, setAllDeliveries] = useState<any[]>([]);
 
     const [seller, setSeller] = useState({
         name: '',
@@ -121,29 +122,42 @@ function EmployerDash(props: Props) {
         wallet: 0,
     });
 
+    const onSelectDate: DatePickerProps['onChange'] = (date, dateString) => {
+        setDateDelivery(dateString);
+      };
+
     const [restReservation, setRestReservation] = useState({
         citySeller: '',
           cityBuyer: '',
-          travelId: '',
+          deliveryUserId: '',
           state: 0,
           priceDelivery: 0,
           deliveryManInfo: '',
           descriptionConvoyeur: ''
     });
 
+    const openNotificationWithIcon = (type: NotificationType, notificationTitle:string, descriptionTitle:string) => {
+        notificationApi[type]({
+          message: notificationTitle,
+          description: descriptionTitle,
+          placement:"bottomRight"
+        });
+      };
+
     const next = () => {
         if(current === 0){
-            if(restReservation.cityBuyer === '' || restReservation.citySeller === ''){
+            if(restReservation.cityBuyer === '' || restReservation.citySeller === '' || deliveryUserId === "" || dateDelivery === ""){
                 message.error("Veuillez remplir les lieux pour la reception et le depot du colis d'abord");
             } else {
                 message.loading("Enregistrement en cours")
                 .then(async () => {
-                    const data = await consumeApi.setDeleveryProductLevelOne(restReservation.cityBuyer, restReservation.citySeller, itemSelect, travelId);
+                    const data = await consumeApi.setDeleveryProductLevelOne(restReservation.cityBuyer, restReservation.citySeller, itemSelect, deliveryUserId, dateDelivery, deliveryManInfo, restReservation.priceDelivery);
                     if(data.etat === Etat.SUCCESS) {
                         message.success("Enregistrement terminé, toutes les parties ont été informé")
                         setCurrent(current + 1);
                     } else {
                         const error = data.error as Error;
+                        openNotificationWithIcon("error", "Solde Insuffisant", error.message)
                         message.error(error.message);
                     }
                 })
@@ -182,7 +196,7 @@ function EmployerDash(props: Props) {
         if(itemProductForValidate !== ''){
             message.loading("Traitement en cours")
                 .then(async () => {
-                    const data = await consumeApi.approvedProductOrNot(type, commentProductForValidate, itemProductForValidate);
+                    const data = await consumeApi.approvedProductOrNot(type, commentProductForValidate, itemProductForValidate, priceDelivery);
                     if(data.etat === Etat.SUCCESS) {
                         setCommentProductForValidate('');
                         setSelectedProductInfo(0);
@@ -214,7 +228,7 @@ function EmployerDash(props: Props) {
     }
 
     const reformatContent = (currentIndex:number) => {
-        if(currentIndex === 0) {
+        if(currentIndex === -1) {
             return (
                 <Grid container spacing={1} style={{padding: 20}}>
                         <Grid item xs={3}>
@@ -264,47 +278,69 @@ function EmployerDash(props: Props) {
                             />
                         </Grid>
                         <Grid item xs={4}>
-                        <Radio.Group
-                            options={options}
-                            onChange={(e)=> changeTypeCommand(e.target.value)}
-                            value={typeCommand}
-                            optionType="button"
-                            />
-                            {typeCommand === options[1].value ?
-                                <Select
-                                showSearch
-                                style={{width:'100%', marginTop: 10}}
-                                placeholder="Select travel"
-                                onChange={(value)=> setTavelId(value?.toString() ?? '')}
-                                allowClear
-                                
-                                >
-                                {travels.map(value => (<Option key={value._id} value={value._id}>{value.description}</Option>))}
-                                </Select>
-                                :
-                                <></>
-                            }
                             <Grid container spacing={1} style={{padding: 5}}>
                                 <Grid item xs={6}>
-                                <Input
-                                value={restReservation.citySeller}
-                                placeholder="Lieu Vendeur"
-                                onChange={(e)=> {
-                                    setRestReservation({...restReservation, citySeller: e.target.value});
-                                }}
-                                />
+                                <Select
+                                    showSearch
+                                    style={{width:'100%', marginTop: 10}}
+                                    placeholder="Selection Livreur"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) => (option?.label ?? '').includes(input)}
+                                    filterSort={(optionA, optionB) =>
+                                    (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+                                    }
+                                    onChange={(value)=> setDeliveryUserId(value?.toString() ?? '')}
+                                    allowClear
+                                    options={allDeliveries.map(value => { return {value: value._id.toString(), label: `${value.name} | ${value.notFinished}`}})}
+                                    />
+                                    
                                 </Grid>
                                 <Grid item xs={6}>
-                                <Input
-                                value={restReservation.cityBuyer}
-                                placeholder="Lieu Acheteur"
-                                onChange={(e)=> {
-                                    setRestReservation({...restReservation, cityBuyer: e.target.value});
-                                }}
-                                />
+                                    <DatePicker placeholder='Date de livraison' onChange={onSelectDate} style={{width:'100%', marginTop: 10}} />
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <Input
+                                    value={restReservation.citySeller}
+                                    placeholder="Lieu Vendeur"
+                                    onChange={(e)=> {
+                                        setRestReservation({...restReservation, citySeller: e.target.value});
+                                    }}
+                                    />
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <Input
+                                    value={restReservation.cityBuyer}
+                                    placeholder="Lieu Acheteur"
+                                    onChange={(e)=> {
+                                        setRestReservation({...restReservation, cityBuyer: e.target.value});
+                                    }}
+                                    />
+                                </Grid>
+                                <Grid item xs={7} style={{marginTop: 10}}>
+                                    <TextInputField
+                                            id='deliveryManInfo'
+                                            className='deliveryManInfo'
+                                            value={deliveryManInfo}
+                                            required={true}
+                                            variant="outlined"
+                                            label="Info suplementaire"
+                                            onChange={(e) => changeDeliveryManInfo(e.target.value)}
+                                    />
+                                </Grid>
+                                <Grid item xs={5} style={{marginTop: 10}}>
+                                    <InputNumber
+                                    min={0}
+                                    style={{width: "100%"}}
+                                    value={restReservation.priceDelivery}
+                                    placeholder="Prix livraison"
+                                    onChange={(value)=> {
+                                        setRestReservation({...restReservation, priceDelivery: value as number});
+                                    }}
+                                    />
                                 </Grid>
 
                             </Grid>
+                            
                         </Grid>
                 </Grid>
             )
@@ -579,6 +615,25 @@ function EmployerDash(props: Props) {
                                 
                                 />
                                 </Grid>
+                                <Grid item xs={6}>
+                                    <Select
+                                        value={deliveryUserId}
+                                        style={{width:'100%', marginTop: 10}}
+                                        placeholder="Selection Livreur"
+                                        disabled
+                                        options={allDeliveries.map(value => { return {value: value._id.toString(), label: `${value.name} | ${value.notFinished}`}})}
+                                    />
+                                </Grid>
+                                <Grid item xs={6}>
+                                <InputNumber
+                                    min={0}
+                                    disabled
+                                    style={{width:'100%', marginTop: 10}}
+                                    value={restReservation.priceDelivery}
+                                    placeholder="Prix livraison"
+                                
+                                />
+                                </Grid>
 
                             </Grid>
                         </Grid>
@@ -599,12 +654,8 @@ function EmployerDash(props: Props) {
         } else {
             return(
                 <>
-                    <Steps current={current}>
-                    {steps.map(item => (
-                            <Step key={item.title} title={item.title} />
-                        ))}
-                    </Steps>
-                    {reformatContent(current)}
+                    <Steps current={current} items={items.map(item => ({ key: item.title, title: item.title }))} />
+                    {reformatContent(current - 1)}
                 </>
             )
         }
@@ -685,6 +736,18 @@ function EmployerDash(props: Props) {
                                 label="Commentaire"
                                 onChange={(e) => setCommentProductForValidate(e.target.value)}
                             />
+                            
+                            <div className="mt-20">
+                            <TextInputField
+                                id='priceDelivery'
+                                required={false}
+                                className='priceDelivery'
+                                value={priceDelivery}
+                                variant="outlined"
+                                label="Prix Livraison"
+                                onChange={(e) => setPriceDelivery(e.target.value)}
+                            />
+                            </div>
                         </Grid>
                 </Grid>
                 </>
@@ -697,17 +760,17 @@ function EmployerDash(props: Props) {
       const data = await consumeApi.getCommandes();
       const resultCommandes = data.result.allCommande as any[];
       const resultDealsInWait = data.result.allProductInWait as any[];
-      const resultTravels = data.result.allTravel as any[];
+      const resultAllDeliveries = data.result.allDeliveries as any[];
       const allCommande = resultCommandes.map(value => {
         return {...value, key: value._id}
       });
-      const allTravel = resultTravels.map(value => {
+      const allDeliverie = resultAllDeliveries.map(value => {
         return {...value, key: value._id}
       });
       if(data.etat === Etat.SUCCESS) {
         setCommandes(allCommande);
         setDealsInWait(resultDealsInWait);
-        setTravels(allTravel);
+        setAllDeliveries(allDeliverie);
         setIsFetch(false);
       } else {
         localStorage.clear();
@@ -722,7 +785,7 @@ function EmployerDash(props: Props) {
 
 
     const columns = [
-        { title: 'N° Commande', dataIndex: '_id', key:'_id',fixed: true, render: (info:any) => {
+        { title: 'N° Commande', dataIndex: '_id', key:'_id',fixed: true, render: (info:any, rowData:any) => {
             const _id = info as string;
             return (
                 <Buttons
@@ -739,8 +802,9 @@ function EmployerDash(props: Props) {
                                                 setSeller(data.result.seller);
                                                 setBuyer(data.result.buyer);
                                                 setProduct(data.result.product);
+                                                setDeliveryUserId(data.result.restReservation.deliveryUserId);
                                                 setRestReservation(data.result.restReservation);
-                                                const newCurrent = data.result.restReservation.state <= 3 ? data.result.restReservation.state : 3;
+                                                const newCurrent = data.result.restReservation.state <= 3 ? data.result.restReservation.state + 1 : 3;
                                                 setLevelDelivery(data.result.restReservation.state);
                                                 setCurrent(newCurrent);
                                                 setSelected(2);
@@ -752,13 +816,19 @@ function EmployerDash(props: Props) {
                                     />
             )
         } },
-        { title: 'Prix Final', dataIndex: 'price', key:'price' },
-        { title: 'Lieu Vendeur', dataIndex: 'citySeller', key:'citySeller' },
-        { title: 'Lieu Acheteur', dataIndex: 'cityBuyer', key:'cityBuyer' },
+        { title: 'Prix Final', dataIndex: 'price', key:'price',fixed: true },
+        { title: 'Lieu Vendeur', dataIndex: 'citySeller', key:'citySeller',fixed: true },
+        { title: 'Lieu Acheteur', dataIndex: 'cityBuyer', key:'cityBuyer',fixed: true },
         
-        { title: 'Niveau', dataIndex: 'state', key:'state',render: (info:any) => {
+        { title: 'Niveau', dataIndex: 'state', key:'state',fixed: true, render: (info:any) => {
           const state = info as number;
-          if(state === 0) {
+          if(state === -1) {
+            return (
+              <Tag color={'error'}>
+                Aucun Livreur
+              </Tag>
+            )
+          } else if(state === 0) {
             return (
               <Tag color={'error'}>
                 Chez Le vendeur
@@ -809,6 +879,7 @@ function EmployerDash(props: Props) {
                                         tooltip={'Cliquez ici pour le gerer'}
                                         onClick={()=> {
                                             setProductInfo(rowData);
+                                            setPriceDelivery(rowData.priceDelivery.toString());
                                             setItemProductForValidate(_id);
                                             setSelectedProductInfo(1);
                                         }}
@@ -855,7 +926,7 @@ function EmployerDash(props: Props) {
                                     </AccordionDetails>
                                     <Divider />
                                     <AccordionActions>
-                                    {current < steps.length - 1 && (
+                                    {current < items.length - 1 && (
                                     <Buttons
                                     key="next"
                                     id='next'
@@ -869,7 +940,7 @@ function EmployerDash(props: Props) {
                                     )}
                                     
                                     
-                                    {(levelDelivery === 1 || levelDelivery === 4) && (
+                                    {(levelDelivery <= 1 || levelDelivery === 4) && (
                                         <Buttons
                                             key="rembourser"
                                             id='rembourser'
@@ -907,7 +978,7 @@ function EmployerDash(props: Props) {
                                         })
                                     }}
                                 />
-                                <Table columns={columns} dataSource={commandes} />
+                                <Table columns={columns} dataSource={commandes} rowKey={'_id'} />
                               </div>
                             </div>
                         </Grid>
@@ -983,7 +1054,7 @@ function EmployerDash(props: Props) {
                                         })
                                     }}
                                 />
-                                <Table columns={columnsProductInWait} dataSource={dealsInWait} />
+                                <Table columns={columnsProductInWait} dataSource={dealsInWait} rowKey={'_id'} />
                               </div>
                             </div>
                         </Grid>

@@ -1,13 +1,17 @@
 import React, {useState, useEffect, useCallback, useRef} from 'react';
 import { Props } from '../../Interfaces/Props/Navigation';
-import {Card, Grid, Avatar, Chip, IconButton } from '@mui/material';
+import {Card, Grid, Avatar, Chip, IconButton, Accordion, AccordionSummary, Typography, AccordionDetails, Divider, AccordionActions, Button, } from '@mui/material';
+
+import { makeStyles } from '@mui/styles';
 import { colorPrimary, colorGreySmoothWith, colorError } from '../../Constants/color';
 import Modals from '../Components/Modals/Modals';
 import Buttons from '../Components/Buttons/Buttons';
 import { btn_color_primary } from '../../Constants/ClassName/Buttons';
 import { message, Affix, Table, Tabs, Tag } from 'antd';
 import MegaTitleProps from '../Components/MegaTitle/MegaTitle';
-import { MehTwoTone, DollarCircleOutlined, DownCircleOutlined, SearchOutlined, CarTwoTone, ShoppingTwoTone, CalendarTwoTone, CloudSyncOutlined } from '@ant-design/icons';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { MehTwoTone, DollarCircleOutlined, DownCircleOutlined, SearchOutlined, CarTwoTone, ShoppingTwoTone, CalendarTwoTone, CloudSyncOutlined, ShopOutlined, CheckCircleOutlined, LoadingOutlined, ScheduleOutlined, DislikeOutlined, EyeInvisibleOutlined, ReconciliationTwoTone } from '@ant-design/icons';
 import blur from '../../Assets/Images/svg/blur.svg'
 import TextInputField from '../Components/TextInputField/TextInputField';
 import BoxLoadings from '../Components/Loading/BoxLoading';
@@ -20,6 +24,42 @@ import CheckBoxs from '../Components/CheckBox/CheckBoxs';
 import { format } from 'date-fns';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 
+
+const useStyles = makeStyles({
+  root: {
+    width: '100%',
+    margin: 15
+  },
+  heading: {
+    fontSize: 20,
+  },
+  secondaryHeading: {
+    fontSize: 15,
+    color: colorPrimary,
+  },
+  icon: {
+    verticalAlign: 'bottom',
+    height: 20,
+    width: 20,
+  },
+  details: {
+    alignItems: 'center',
+  },
+  column: {
+    flexBasis: '33.33%',
+  },
+  helper: {
+    borderLeft: `2px solid grey`,
+    padding: 10,
+  },
+  link: {
+    color: colorPrimary,
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
+});
 const { TabPane } = Tabs;
 const top = 10;
 
@@ -97,62 +137,91 @@ const renderActiveShape = (props: any) => {
   };
 
 export default function DashbordAdminDeals(props: Props) {
+    const classes = useStyles();
     const navigate = useNavigate();
     const consumeApi: ConsumeApi = new ConsumeApi();
     const [checked, setChecked] = useState([false, false,false]);
     const [isFetch, setIsFetch] = useState(true);
     const [dataDashboard, setDataDashboard] = useState({
       countTotalAccount: 0,
-      countTotalAdmin: 0,
+      countTotalDealsApproved: 0,
       countTotalArticle: 0,
       countTotalCategorie: 0,
-      countTotalDeals: 0,
-      countTotalEvent: 0,
-      countTotalTravel: 0,
+      countTotalDealsInWaitApprobation: 0,
+      countTotalDealsInRejectAuto: 0,
+      countTotalDealsNotSatisfait: 0,
+      countTotalDealsInAuoValidate: 0,
+      countTotalDealsNotApproved: 0,
+      countTotalDealsInValidate:0,
       allcategorie: [],
-
-      reserveEvent: 0,
-      reserveRecharge: 0,
-      reserveDeals: 0,
-      reserveTravel: 0,
-      dataForRechargement: [],
-      dataForRetrait: [],
-      dataRadard: [],
       dataLine: [],
-      allTravelInWait: [],
+      columnsDelivery: [],
     });
-    const [activeIndex, setActiveIndex] = useState(0);
-    const onPieEnter = useCallback(
-      (_:any, index:any) => {
-         setActiveIndex(index);
-      },
-      [setActiveIndex]
-    );
-
-    const onChecked = async ( event: React.ChangeEvent<HTMLInputElement>) => {
-      if(event.target.name === 'actu'){
-        const oldChecked = checked[0];
-        setChecked([!oldChecked, checked[1], checked[2]])
-      } else if (event.target.name === 'deals'){
-        const oldChecked = checked[1];
-        setChecked([checked[0], !oldChecked, checked[2]])
-      } else if (event.target.name === 'event'){
-        const oldChecked = checked[2];
-        setChecked([checked[0], checked[1], !oldChecked])
-      }
-      //changeChecbox({ ...checbox, [event.target.name]: event.target.checked });
-  }
-    
-
+    const [address, changeAddress] = useState('');
+    const [password, changePassword] = useState('');
+    const [name, changeName] = useState('');
+    const [numberClient, changeNumberClient] = useState('');
+    const [viewPassWord, setViewPassWord] = useState(false);
 
     // Hooks Effet
     useEffect(() => {
       loadData();
     }, []);
 
+    const createDelivery = async () => {
+      if (name.length > 4 && address.length > 5 && password.length > 7 && numberClient.length === 10) {
+          message.loading("Enregistrement en cours")
+          .then(async () => {
+            const createAdmin = await consumeApi.createDelivery(name,address,numberClient,password);
+                if(createAdmin.etat === Etat.SUCCESS) {
+                    message.success(`Un nouveau livreur a été ajouté.`);
+                    loadData();
+                    changeAddress('');
+                    changePassword('');
+                    changeName('');
+                    changeNumberClient('');
+                } else if(createAdmin.etat === Etat.ISEXIST) {
+                    message.warning('Ce numero appartient à un autre livreur');
+                } else {
+                  const error = createAdmin.error as Error;
+                  message.error(error.message);
+              }
+          })
+          
+      }
+      else {
+          message.error("Veuillez remplir les champs convenablement")
+      }
+  }
+
+    const columnsDelivery = [
+      { title: 'Name', dataIndex: 'name', key:'name',fixed: true },
+      { title: 'Prefix', dataIndex: 'prefix', key:'prefix',fixed: true },
+      { title: 'Numero', dataIndex: 'numero', key:'numero',fixed: true },
+      { title: 'Adresse', dataIndex: 'address', key:'address',fixed: true },
+      { title: "Progression Aujourd'hui", dataIndex: '_id',fixed: true,render: (_id:string, rowData:any) => {
+        return (
+          <Tag key={_id} color={'green'}>
+            {rowData.allToday - rowData.doneToday}/{rowData.allToday}
+          </Tag>)
+      }
+      },
+      { title: 'Total effectué', dataIndex: 'allCourse', key:'allCourse',fixed: true },
+    ];
+
+    const handleClickShowPassword = () => {
+      const oldViewPassWord = viewPassWord
+      setViewPassWord(!oldViewPassWord)
+    };
+  
+    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+    };
+
     async function loadData() {
-      const data = await consumeApi.getDahsboard();
+      const data = await consumeApi.getDahsboardAdminDeals();
       if(data.etat === Etat.SUCCESS) {
+        console.log(data.result.columnsDelivery);
         setDataDashboard(data.result);
         setIsFetch(false);
       } else {
@@ -184,15 +253,15 @@ export default function DashbordAdminDeals(props: Props) {
                               <div className="shadow_1 border_radius btn_color_white heigt130 flexbox relative">
                                 <div className="flexbox space-around heigt80">
                                   <div className="container_icon">
-                                    <MehTwoTone twoToneColor={colorPrimary} style={{fontSize: 20}}/>
+                                    <ShopOutlined color={colorPrimary} style={{fontSize: 20}}/>
                                   </div>
-                                  <h3>Total ventes</h3>
+                                  <h3>Total Article</h3>
                                 </div>
                                   <div className="absolute container_svg">
                                       <img src={blur} className='' alt='blur' />
                                   </div>
                                   <div className="absolute container_counter">
-                                      <h1>{dataDashboard.countTotalAccount}</h1>
+                                      <h1>{dataDashboard.countTotalArticle}</h1>
                                   </div>
 
                               </div>
@@ -201,15 +270,15 @@ export default function DashbordAdminDeals(props: Props) {
                             <div className="shadow_1 border_radius btn_color_white heigt130 flexbox relative">
                                   <div className="flexbox space-around heigt80">
                                     <div className="container_icon">
-                                      <ShoppingTwoTone twoToneColor={colorPrimary} style={{fontSize: 20}}/>
+                                      <CheckCircleOutlined color={colorPrimary} style={{fontSize: 20}}/>
                                     </div>
-                                    <h3>Total articles acheté</h3>
+                                    <h3>Articles Approuvés</h3>
                                   </div>
                                   <div className="absolute container_svg">
                                       <img src={blur} className='' alt='blur' />
                                   </div>
                                     <div className="absolute container_counter">
-                                        <h1>{dataDashboard.countTotalDeals}</h1>
+                                        <h1>{dataDashboard.countTotalDealsApproved}</h1>
                                     </div>                                
                               </div>
                             
@@ -218,15 +287,49 @@ export default function DashbordAdminDeals(props: Props) {
                             <div className="shadow_1 border_radius btn_color_white heigt130 flexbox relative">
                                   <div className="flexbox space-around heigt80">
                                     <div className="container_icon">
-                                      <CarTwoTone twoToneColor={colorPrimary} style={{fontSize: 20}}/>
+                                      <LoadingOutlined color={colorPrimary} style={{fontSize: 20}}/>
                                     </div>
-                                    <h3>Total articles remboursés</h3>
+                                    <h3>Articles en attente</h3>
                                   </div>
                                   <div className="absolute container_svg">
                                       <img src={blur} className='' alt='blur' />
                                   </div>
                                     <div className="absolute container_counter">
-                                        <h1>{dataDashboard.countTotalTravel}</h1>
+                                        <h1>{dataDashboard.countTotalDealsNotApproved}</h1>
+                                    </div>                                
+                              </div>
+                            
+                          </Grid>
+                          <Grid item xs={3}>
+                            <div className="shadow_1 border_radius btn_color_white heigt130 flexbox relative">
+                                  <div className="flexbox space-around heigt80">
+                                    <div className="container_icon">
+                                      <ScheduleOutlined color={colorPrimary} style={{fontSize: 20}}/>
+                                    </div>
+                                    <h3>Articles satisfaisant</h3>
+                                  </div>
+                                  <div className="absolute container_svg">
+                                      <img src={blur} className='' alt='blur' />
+                                  </div>
+                                    <div className="absolute container_counter">
+                                        <h1>{dataDashboard.countTotalDealsInValidate}</h1>
+                                    </div>                                
+                              </div>
+                            
+                          </Grid>
+                          <Grid item xs={3}>
+                            <div className="shadow_1 border_radius btn_color_white heigt130 flexbox relative">
+                                  <div className="flexbox space-around heigt80">
+                                    <div className="container_icon">
+                                      <ScheduleOutlined color={colorPrimary} style={{fontSize: 20}}/>
+                                    </div>
+                                    <h3>Articles Auto-Validé</h3>
+                                  </div>
+                                  <div className="absolute container_svg">
+                                      <img src={blur} className='' alt='blur' />
+                                  </div>
+                                    <div className="absolute container_counter">
+                                        <h1>{dataDashboard.countTotalDealsInAuoValidate}</h1>
                                     </div>                                
                               </div>
                             
@@ -238,11 +341,41 @@ export default function DashbordAdminDeals(props: Props) {
                                       <img src={blur} className='' alt='blur' />
                                     </div>
                                       <div className="absolute container_busy">
-                                        <CalendarTwoTone twoToneColor={colorError} style={{fontSize: 20}}/>
+                                        <ShoppingTwoTone twoToneColor={colorError} style={{fontSize: 20}}/>
                                       </div>
                                       <div className="lastCardDahsbord">
-                                        <h1>{dataDashboard.countTotalEvent}</h1>
-                                        <h4>Chiffres des ventes</h4>
+                                        <h1>{dataDashboard.countTotalDealsInWaitApprobation}</h1>
+                                        <h4>Article chez le client</h4>
+                                      </div>                          
+                              </div>    
+                          </Grid>
+                          <Grid item xs={3}>
+                            <div className="shadow_2  border_radius btn_color_primary heigt130 relative">
+                                    
+                                    <div className="absolute container_svg_second">
+                                      <img src={blur} className='' alt='blur' />
+                                    </div>
+                                      <div className="absolute container_busy">
+                                        <DislikeOutlined color={colorError} style={{fontSize: 20}}/>
+                                      </div>
+                                      <div className="lastCardDahsbord">
+                                        <h1>{dataDashboard.countTotalDealsNotSatisfait}</h1>
+                                        <h4>Article retourné</h4>
+                                      </div>                          
+                              </div>    
+                          </Grid>
+                          <Grid item xs={3}>
+                            <div className="shadow_2  border_radius btn_color_primary heigt130 relative">
+                                    
+                                    <div className="absolute container_svg_second">
+                                      <img src={blur} className='' alt='blur' />
+                                    </div>
+                                      <div className="absolute container_busy">
+                                        <EyeInvisibleOutlined color={colorError} style={{fontSize: 20}}/>
+                                      </div>
+                                      <div className="lastCardDahsbord">
+                                        <h1>{dataDashboard.countTotalDealsInRejectAuto}</h1>
+                                        <h4>Fournisseur introuvable</h4>
                                       </div>                          
                               </div>    
                           </Grid>
@@ -250,67 +383,12 @@ export default function DashbordAdminDeals(props: Props) {
                         </Grid>
                         
                         <Grid container spacing={3} style={{padding: 0, marginBottom: 5}}>
-                          
-                          <Grid item xs={6} style={{paddingTop:57}}>
-                            <MegaTitleProps title="Evènements du mois" size='sm' />
-                            <Card>
-                            
-                              <RadarChart
-                                  cx={195}
-                                  cy={175}
-                                  outerRadius={100}
-                                  width={450}
-                                  height={350}
-                                  data={dataDashboard.dataRadard}
-                                >
-                                  <PolarGrid />
-                                  <PolarAngleAxis dataKey="forfait" />
-                                  <PolarRadiusAxis />
-                                  <Radar
-                                    dataKey="value"
-                                    stroke="#8884d8"
-                                    fill="#8884d8"
-                                    fillOpacity={0.6}
-                                  />
-                                </RadarChart>
-                              </Card>
-                          </Grid>
-                          <Grid item xs={6} style={{paddingTop:57}}>
-                            <MegaTitleProps title="Vision Globale" size='sm' />
-                            <Card style={{padding:0}}>
-                              <PieChart width={470} height={210}>
-                                            <Pie
-                                              activeIndex={activeIndex}
-                                              activeShape={renderActiveShape}
-                                              data={[
-                                                { name: 'Recharges', value: dataDashboard.reserveRecharge },
-                                                { name: 'Events', value: dataDashboard.reserveEvent },
-                                                { name: 'Deals', value: dataDashboard.reserveDeals },
-                                                { name: 'Travels', value: dataDashboard.reserveTravel },
-                                              ]}
-                                              cx={220}
-                                              cy={95}
-                                              innerRadius={60}
-                                              outerRadius={80}
-                                              fill={colorPrimary}
-                                              dataKey="value"
-                                              onMouseEnter={onPieEnter}
-                                              
-                                            >
-                                              {COLORS.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry} />
-                                              ))}
-                                            </Pie>
-                              </PieChart>
-                            </Card>
-                            
-                          </Grid>
 
                           <Grid item xs={12}>
                             <MegaTitleProps title="Articles crées ces 30 jours" size='sm' />
                             <Card style={{padding:0}}>
                                 <LineChart
-                                  width={1000}
+                                  width={1300}
                                   height={300}
                                   data={dataDashboard.dataLine}
                                   margin={{
@@ -337,6 +415,116 @@ export default function DashbordAdminDeals(props: Props) {
                           
                           
                         </Grid>
+
+                        <div className="pt-10">
+                        <MegaTitleProps title="Ajout Livreur" size='md' />
+                        <Grid container spacing={1} style={{padding: 10}}>
+                            <div className={classes.root}>
+                                <Accordion defaultExpanded>
+                                    <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1c-content"
+                                    id="panel1c-header"
+                                    >
+                                    <div className={classes.column}>
+                                        <ReconciliationTwoTone twoToneColor={colorPrimary} style={{fontSize: 32}}/>
+                                    </div>
+                                    <div className={classes.column}>
+                                        <Typography className={classes.secondaryHeading}>Créer un employé de section</Typography>
+                                    </div>
+                                    </AccordionSummary>
+                                    <AccordionDetails className={classes.details}>
+                                        <Grid container spacing={1} style={{padding: 10}}>
+                                            <Grid item xs={3}>
+                                                            <TextInputField
+                                                                id='password'
+                                                                className='createPassword'
+                                                                value={password}
+                                                                required={true}
+                                                                variant="outlined"
+                                                                label="Mot de passe"
+                                                                suffix={
+                                                                  <IconButton
+                                                                      aria-label="toggle password visibility"
+                                                                      onClick={handleClickShowPassword}
+                                                                      onMouseDown={handleMouseDownPassword}
+                                                                      edge="end"
+                                                                  >
+                                                                      {!viewPassWord ? <Visibility /> : <VisibilityOff />}
+                                                                  </IconButton>
+                                                              }
+                                                                type={viewPassWord ? 'text' : 'password'}
+                                                                onChange={(e) => changePassword(e.target.value)}
+                                                            />
+                                                            
+                                                
+                                                
+                                            </Grid>
+                                            <Grid item xs={8}>
+                                            <Grid container spacing={1} >
+                                                <Grid item xs={4}>
+                                                    <TextInputField
+                                                            id='name'
+                                                            className='createName'
+                                                            value={name}
+                                                            required={true}
+                                                            variant="outlined"
+                                                            label="Nom et prénoms"
+                                                            onChange={(e) => changeName(e.target.value)}
+                                                        />
+                                                        
+                                                </Grid>
+                                                <Grid item xs={4}>
+                                                    <TextInputField
+                                                            id='number'
+                                                            className='createNumber'
+                                                            value={numberClient}
+                                                            required={true}
+                                                            variant="outlined"
+                                                            prefix='+225'
+                                                            type='number'
+                                                            label="Numéro de téléphone"
+                                                            onChange={(e) => changeNumberClient(e.target.value)}
+                                                        />
+                                                </Grid>
+                                                <Grid item xs={4}>
+                                                  <TextInputField
+                                                                id='address'
+                                                                className='createAddress'
+                                                                value={address}
+                                                                required={true}
+                                                                variant="outlined"
+                                                                label="Adresse"
+                                                                onChange={(e) => changeAddress(e.target.value)}
+                                                            />
+                                                </Grid>
+                                                
+                                            </Grid>
+
+                                          
+                                            
+                                            </Grid>
+                                        </Grid>
+                                        
+                                    </AccordionDetails>
+                                    <Divider />
+                                    <AccordionActions>
+                                    <Button size="small" color="primary" onClick={createDelivery}>
+                                        Enregistrer
+                                    </Button>
+                                    </AccordionActions>
+                                </Accordion>
+                            </div>
+                        </Grid>
+                        <Grid container spacing={1} style={{padding: 20}}>
+                            <div className={classes.root}>
+                              <div className={classes.column}>
+                                <Typography className={classes.secondaryHeading}>Liste Livreur</Typography>
+                                <Table columns={columnsDelivery} dataSource={dataDashboard.columnsDelivery} rowKey="numero"/>
+                              </div>
+                            </div>
+                        </Grid>
+                    </div>
                         
                       </Grid>
                       

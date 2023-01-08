@@ -397,7 +397,7 @@ function AdminCovoiturage(props: Props) {
                             <div className={classes.root}>
                               <div className={classes.column}>
                                 <Typography className={classes.secondaryHeading}>List Demande Conducteur en cours</Typography>
-                                <Table columns={columns} dataSource={travellersDemandes} />
+                                <Table columns={columns} dataSource={travellersDemandes} rowKey="_id" />
                               </div>
                             </div>
                         </Grid>

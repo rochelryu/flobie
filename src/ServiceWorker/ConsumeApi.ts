@@ -6,6 +6,7 @@ export class ConsumeApi {
     private base_url = "https://app.shouz.network";//192.168.1.180:5000 //192.168.43.115:8000";
     private signin_url = this.base_url + "/lastLevel/login";
     private dashboard_url = this.base_url + "/lastLevel/dashboard";
+    private dashboardAdmin_url = this.base_url + "/lastLevel/dashboardAdminDeals";
     private employer_url = this.base_url + "/lastLevel/getEmployer";
     private createAdmin_url = this.base_url + "/lastLevel/createAdmin";
     private changePassword_url = this.base_url + "/lastLevel/changePassword";
@@ -38,6 +39,7 @@ export class ConsumeApi {
     private setDeleveryProductLevelThree_url = this.base_url + "/lastLevel/setDeleveryProductLevelThree";
     private activeMobileMoney_url = this.base_url + "/lastLevel/activeMobileMoney";
     private approvedProductOrNot_url = this.base_url + "/lastLevel/approvedProductOrNot";
+    private createDeliveryMan_url = this.base_url + "/lastLevel/createDeliveryMan";
 
     // Assets File URL
 
@@ -84,6 +86,26 @@ export class ConsumeApi {
             role
         };
         const response =  await post(this.createAdmin_url, body);
+        if(response.etat === Etat.SUCCESS) {
+            localStorage.setItem('recovery', response.result.recovery);
+        }
+        return response;
+    }
+
+    async createDelivery(name: string,address: string, numero: string, password: string): Promise<ResponseInterface> {
+        const id = localStorage.getItem('ident');
+        const recovery = localStorage.getItem('recovery');
+        const body = {
+            id,
+            recovery,
+            numero,
+            password,
+            name,
+            prefix: "+255",
+            address,
+        };
+        console.log("createDelivery")
+        const response =  await post(this.createDeliveryMan_url, body);
         if(response.etat === Etat.SUCCESS) {
             localStorage.setItem('recovery', response.result.recovery);
         }
@@ -297,7 +319,7 @@ export class ConsumeApi {
         return response;
     }
 
-    async setDeleveryProductLevelOne(cityBuyer: string,citySeller: string, itemSelect: string, travelId: string = ''): Promise<ResponseInterface> {
+    async setDeleveryProductLevelOne(cityBuyer: string,citySeller: string, itemSelect: string, deliveryUserId: string,dateDelivery:string,deliveryManInfo:string, priceDelivery:number ): Promise<ResponseInterface> {
         const id = localStorage.getItem('ident');
         const recovery = localStorage.getItem('recovery');
         const body = {
@@ -306,7 +328,10 @@ export class ConsumeApi {
             cityBuyer,
             citySeller,
             itemSelect,
-            travelId,
+            deliveryUserId,
+            dateDelivery,
+            deliveryManInfo,
+            priceDelivery
         };
         const response =  await post(this.setDeleveryProductLevelOne_url, body);
         if(response.etat === Etat.SUCCESS) {
@@ -346,7 +371,7 @@ export class ConsumeApi {
         }
         return response;
     }
-    async approvedProductOrNot(approved: boolean, comment: string, productId: string): Promise<ResponseInterface> {
+    async approvedProductOrNot(approved: boolean, comment: string, productId: string, priceDelivery:string): Promise<ResponseInterface> {
         const id = localStorage.getItem('ident');
         const recovery = localStorage.getItem('recovery');
         const body = {
@@ -354,7 +379,8 @@ export class ConsumeApi {
             recovery,
             approved,
             comment,
-            productId
+            productId,
+            priceDelivery
         };
         const response =  await post(this.approvedProductOrNot_url, body);
         if(response.etat === Etat.SUCCESS) {
@@ -427,6 +453,12 @@ export class ConsumeApi {
         const ident = localStorage.getItem('ident');
         const recovery = localStorage.getItem('recovery');
         return await get(`${this.dashboard_url}?ident=${ident}&recovery=${recovery}`);
+    }
+
+    async getDahsboardAdminDeals(): Promise<ResponseInterface> {
+        const ident = localStorage.getItem('ident');
+        const recovery = localStorage.getItem('recovery');
+        return await get(`${this.dashboardAdmin_url}?ident=${ident}&recovery=${recovery}`);
     }
 
     async getEmployer(): Promise<ResponseInterface> {

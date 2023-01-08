@@ -3,7 +3,8 @@ import { Props } from '../../Interfaces/Props/Navigation';
 import MegaTitleProps from '../Components/MegaTitle/MegaTitle';
 import { Divider, Button, Grid, Typography, IconButton } from '@mui/material';
 import { message,Select, Table, Tag} from 'antd';
-import { makeStyles } from '@mui/styles';import Accordion from '@mui/material/Accordion';
+import { makeStyles } from '@mui/styles';
+import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionActions from '@mui/material/AccordionActions';
@@ -117,6 +118,7 @@ function Reserve(props: Props) {
         
       }
     }
+    
     const connection = async () => {
       if (name.length > 4 && piece.length > 5 && password.length > 7 && numberClient.length === 10 && roleChoie !== '') {
           message.loading("Enregistrement en cours")

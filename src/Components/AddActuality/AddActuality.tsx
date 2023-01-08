@@ -375,7 +375,7 @@ function AddActuality(props: Props) {
                             <div className={classes.root}>
                               <div className={classes.column}>
                                 <Typography className={classes.secondaryHeading}>List Actualité</Typography>
-                                <Table columns={columns} dataSource={actualities} />
+                                <Table columns={columns} dataSource={actualities} rowKey="_id" />
                               </div>
                             </div>
                         </Grid>
