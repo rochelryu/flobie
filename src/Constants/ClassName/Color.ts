@@ -1,1 +1,1 @@
-export const color_primary = 'color_primary';
+export const color_primary = "color_primary";

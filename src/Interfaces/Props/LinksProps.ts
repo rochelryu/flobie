@@ -1,6 +1,5 @@
-
 export interface Props {
-    to: string,
-    content: any,
-    tooltip?: string,
+  to: string;
+  content: any;
+  tooltip?: string;
 }
