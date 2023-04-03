@@ -26,6 +26,7 @@ import AccordionActions from "@mui/material/AccordionActions";
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
+  GiftOutlined,
   ReconciliationTwoTone,
   SwapRightOutlined,
   WalletOutlined,
@@ -136,6 +137,7 @@ function EmployerDash(props: Props) {
   const [buyer, setBuyer] = useState({
     name: "",
     avatar: "",
+    deliveryFree: 0,
     description: "",
     wallet: 0,
   });
@@ -191,7 +193,7 @@ function EmployerDash(props: Props) {
             itemSelect,
             deliveryUserId,
             dateDelivery,
-            deliveryManInfo,
+            restReservation.deliveryManInfo,
             restReservation.priceDelivery
           );
           if (data.etat === Etat.SUCCESS) {
@@ -334,8 +336,14 @@ function EmployerDash(props: Props) {
                   <Grid item xs={3}>
                     <WalletOutlined />
                   </Grid>
-                  <Grid item xs={9}>
+                  <Grid item xs={3}>
                     {buyer.wallet}
+                  </Grid>
+                  <Grid item xs={3}>
+                    <GiftOutlined />
+                  </Grid>
+                  <Grid item xs={3}>
+                    {buyer.deliveryFree}
                   </Grid>
                 </Grid>,
               ]}
@@ -404,11 +412,16 @@ function EmployerDash(props: Props) {
                 <TextInputField
                   id="deliveryManInfo"
                   className="deliveryManInfo"
-                  value={deliveryManInfo}
+                  value={restReservation.deliveryManInfo}
                   required={true}
                   variant="outlined"
                   label="Info suplementaire"
-                  onChange={(e) => changeDeliveryManInfo(e.target.value)}
+                  onChange={(e) => {
+                    setRestReservation({
+                      ...restReservation,
+                      deliveryManInfo: e.target.value,
+                    })
+                  }}
                 />
               </Grid>
               <Grid item xs={5} style={{ marginTop: 10 }}>
@@ -477,8 +490,14 @@ function EmployerDash(props: Props) {
                   <Grid item xs={3}>
                     <WalletOutlined />
                   </Grid>
-                  <Grid item xs={9}>
+                  <Grid item xs={3}>
                     {buyer.wallet}
+                  </Grid>
+                  <Grid item xs={3}>
+                    <GiftOutlined />
+                  </Grid>
+                  <Grid item xs={3}>
+                    {buyer.deliveryFree}
                   </Grid>
                 </Grid>,
               ]}
@@ -588,8 +607,14 @@ function EmployerDash(props: Props) {
                   <Grid item xs={3}>
                     <WalletOutlined />
                   </Grid>
-                  <Grid item xs={9}>
+                  <Grid item xs={3}>
                     {buyer.wallet}
+                  </Grid>
+                  <Grid item xs={3}>
+                    <GiftOutlined />
+                  </Grid>
+                  <Grid item xs={3}>
+                    {buyer.deliveryFree}
                   </Grid>
                 </Grid>,
               ]}
@@ -698,8 +723,14 @@ function EmployerDash(props: Props) {
                   <Grid item xs={3}>
                     <WalletOutlined />
                   </Grid>
-                  <Grid item xs={9}>
+                  <Grid item xs={3}>
                     {buyer.wallet}
+                  </Grid>
+                  <Grid item xs={3}>
+                    <GiftOutlined />
+                  </Grid>
+                  <Grid item xs={3}>
+                    {buyer.deliveryFree}
                   </Grid>
                 </Grid>,
               ]}
@@ -806,7 +837,7 @@ function EmployerDash(props: Props) {
                     {productInfo.images.map((value: any, index: number) => (
                       <div key={`infoProduct${index}`}>
                         <img
-                          src={`https://app.shouz.network/store/${value}`}
+                          src={`${consumeApi.AssetProductServer}${value}`}
                           alt="Achète tout à ton prix, nous te livrons."
                           width={"100%"}
                         />
@@ -833,7 +864,7 @@ function EmployerDash(props: Props) {
                         width="100%"
                         height="auto"
                         controls
-                        src={`https://app.shouz.network/store/${productInfo.video}`}
+                        src={`${consumeApi.AssetProductServer}${productInfo.video}`}
                       ></video>
                     </div>
                   )}

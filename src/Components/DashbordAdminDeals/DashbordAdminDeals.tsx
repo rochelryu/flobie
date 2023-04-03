@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Props } from "../../Interfaces/Props/Navigation";
 import {
   Card,
   Grid,
-  Avatar,
-  Chip,
+  List,
   IconButton,
   Accordion,
   AccordionSummary,
@@ -18,15 +17,12 @@ import {
 import { makeStyles } from "@mui/styles";
 import {
   colorPrimary,
-  colorGreySmoothWith,
   colorError,
 } from "../../Constants/color";
-import Modals from "../Components/Modals/Modals";
 import Buttons from "../Components/Buttons/Buttons";
-import { btn_color_primary } from "../../Constants/ClassName/Buttons";
-import { message, Affix, Table, Tabs, Tag, Form, Space, Input } from "antd";
+import { FloatButton, message, Table, Tabs, Tag, Form, Space, Input, Empty, Select } from "antd";
 import MegaTitleProps from "../Components/MegaTitle/MegaTitle";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { SyncOutlined, Visibility, VisibilityOff } from "@mui/icons-material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   MehTwoTone,
@@ -46,6 +42,7 @@ import {
   EyeInvisibleOutlined,
   ReconciliationTwoTone,
   PlusOutlined,
+  PlusCircleOutlined,
 } from "@ant-design/icons";
 import blur from "../../Assets/Images/svg/blur.svg";
 import TextInputField from "../Components/TextInputField/TextInputField";
@@ -76,6 +73,8 @@ import {
 import CheckBoxs from "../Components/CheckBox/CheckBoxs";
 import { format } from "date-fns";
 import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
+import ConversationUserItem from "../Components/ConversationUserItem/ConversationUserItem";
+import BoxConversation from "../Components/BoxConversation/BoxConversation";
 
 const useStyles = makeStyles({
   root: {
@@ -192,7 +191,7 @@ export default function DashbordAdminDeals(props: Props) {
   const classes = useStyles();
   const navigate = useNavigate();
   const consumeApi: ConsumeApi = new ConsumeApi();
-  const [checked, setChecked] = useState([false, false, false]);
+  const [contentConversation, setContentConversation] = useState<any>({});
   const [isFetch, setIsFetch] = useState(true);
   const [dataDashboard, setDataDashboard] = useState({
     countTotalAccount: 0,
@@ -209,11 +208,15 @@ export default function DashbordAdminDeals(props: Props) {
     dataLine: [],
     columnsDelivery: [],
     allProductNotFound: [],
+    columnsNotificationInApp: [],
+    destinateClientForNotificationCenter: [],
+    allConversations: []
   });
   const [address, changeAddress] = useState("");
   const [password, changePassword] = useState("");
   const [titleNotification, changeTitleNotification] = useState("");
-  const [destinate, changeDestinate] = useState("");
+  const [destinate, changeDestinate] = useState([]);
+  const [describe, changeDescribe] = useState("");
   const [bodyNotification, changeBodyNotification] = useState("");
   const [imgUrlNotification, changeImgUrlNotification] = useState("");
   const [name, changeName] = useState("");
@@ -221,14 +224,11 @@ export default function DashbordAdminDeals(props: Props) {
   const [viewPassWord, setViewPassWord] = useState(false);
   const [form] = Form.useForm();
 
+
   // Hooks Effet
   useEffect(() => {
     loadData();
   }, []);
-
-  const onFinish = async (values: any) => {
-    console.log(values)
-  };
 
   const createDelivery = async () => {
     if (
@@ -263,7 +263,7 @@ export default function DashbordAdminDeals(props: Props) {
     }
   };
 
-  const createNotificationCeter = async (values: any) => {
+  const createNotificationCenter = async (values: any) => {
     if (
       titleNotification.length > 3 &&
       bodyNotification.length > 10 &&
@@ -274,14 +274,14 @@ export default function DashbordAdminDeals(props: Props) {
         values.sights.map(( item : {key:string, value:string} ) => {
           info[item.key] = item.value;
         })
-        console.log(destinate);
-        console.log(destinate.split(','));
+        
         const createNotification = await consumeApi.createNotificationCenter(
           titleNotification.trim(),
           bodyNotification.trim(),
           imgUrlNotification.trim(),
+          describe.trim(),
           info,
-          destinate.split(',')[0] === "" ? []: destinate.split(',')
+          destinate
         );
         if (createNotification.etat === Etat.SUCCESS) {
           message.success(`Notification a été ajouté avec succès.`);
@@ -289,7 +289,8 @@ export default function DashbordAdminDeals(props: Props) {
           changeTitleNotification("");
           changeBodyNotification("");
           changeImgUrlNotification("");
-          changeDestinate("");
+          changeDescribe("");
+          changeDestinate([]);
           form.resetFields();
         } else {
           const error = createNotification.error as Error;
@@ -326,6 +327,31 @@ export default function DashbordAdminDeals(props: Props) {
     },
   ];
 
+  const columnsNotificationInApp = [
+    { title: "Title", dataIndex: "title", key: "title", fixed: true },
+    { title: "Body", dataIndex: "body", key: "body", fixed: true },
+    { title: "Destinataires", dataIndex: "clientsDestinate", fixed: true,
+    render: (clientsDestinate: any, rowData: any) => {
+        return (
+          <Tag key={`clientsDestinate_${rowData._id}`} color={"green"}>
+            {rowData.clientsDestinate.length === 0 ? 'Tout le monde': rowData.clientsDestinate.length}
+          </Tag>
+        );
+      }, },
+    {
+      title: "Client vue",
+      dataIndex: "clientsViewer",
+      fixed: true,
+      render: (clientsViewer: any, rowData: any) => {
+        return (
+          <Tag key={`clientsViewer_${rowData._id}`} color={"green"}>
+            {rowData.clientsViewer.length}
+          </Tag>
+        );
+      },
+    },
+  ];
+
   const handleClickShowPassword = () => {
     const oldViewPassWord = viewPassWord;
     setViewPassWord(!oldViewPassWord);
@@ -348,7 +374,27 @@ export default function DashbordAdminDeals(props: Props) {
     }
   }
 
-  const COLORS = ["#F8B195", "#F67280", "#99B898", "#355C7D"];
+  const searchItem = (value:any) =>{
+    const items = value.map(( client: string) => client.split('----')[1]);
+    changeDestinate(items);
+  };
+
+  const refreshData = () => {
+    message.loading("Actualisation...").then(async () => {
+      await loadData();
+      changeAddress("");
+          changePassword("");
+          changeName("");
+          changeNumberClient("");
+          changeTitleNotification("");
+          changeBodyNotification("");
+          changeImgUrlNotification("");
+          changeDescribe("");
+          changeDestinate([]);
+          form.resetFields();
+      message.success("Actualisation terminé");
+    });
+  };
 
   if (isFetch) {
     return <BoxLoadings />;
@@ -631,7 +677,7 @@ export default function DashbordAdminDeals(props: Props) {
                                     value={bodyNotification}
                                     required={true}
                                     variant="outlined"
-                                    label="Description"
+                                    label="Corps Notification"
                                     onChange={(e) => changeBodyNotification(e.target.value)}
                                   />
                                 </Grid>
@@ -650,10 +696,26 @@ export default function DashbordAdminDeals(props: Props) {
                                   />
                                 </Grid>
                                 <Grid item xs={4}>
+                                  <TextInputField
+                                    id="descriptionNotification"
+                                    className="imgUrlNotification"
+                                    value={describe}
+                                    required={true}
+                                    variant="outlined"
+                                    type="text"
+                                    label="Description"
+                                    onChange={(e) =>
+                                      changeDescribe(e.target.value)
+                                    }
+                                  />
+                                </Grid>
+                              </Grid>
+                            </Grid>
+                            <Grid item xs={6}>
                                   <Form
                                     form={form}
                                     name="control-hooks"
-                                    onFinish={createNotificationCeter}
+                                    onFinish={createNotificationCenter}
                                   >
                                     <Form.List name="sights">
                                       {(fields, { add, remove }) => (
@@ -713,21 +775,18 @@ export default function DashbordAdminDeals(props: Props) {
                                       )}
                                     </Form.List>
                                   </Form>
-                                </Grid>
-                              </Grid>
+                              
                             </Grid>
-                            <Grid item xs={12}>
-                              <TextInputField
-                                  id="createDestinate"
-                                  className="createDestinate"
-                                  value={destinate}
-                                  required={true}
-                                  variant="outlined"
-                                  label="Destinate Client"
-                                  
-                                  type="text"
-                                  onChange={(e) => changeDestinate(e.target.value)}
-                                />
+                            <Grid item xs={6}>
+                            <Select
+                                mode="multiple"
+                                allowClear
+                                style={{ width: '100%' }}
+                                placeholder="Recherche par nom"
+                                onChange={searchItem}
+                                options={dataDashboard.destinateClientForNotificationCenter}
+                                                  />
+                            
                             </Grid>
                           </Grid>
                         </AccordionDetails>
@@ -748,12 +807,16 @@ export default function DashbordAdminDeals(props: Props) {
                     <div className={classes.root}>
                       <div className={classes.column}>
                         <Typography className={classes.secondaryHeading}>
-                          Liste Livreur
+                          Liste Notification in App
                         </Typography>
                         <Table
-                          columns={columnsDelivery}
-                          dataSource={dataDashboard.columnsDelivery}
-                          rowKey="numero"
+                          columns={columnsNotificationInApp}
+                          dataSource={dataDashboard.columnsNotificationInApp}
+                          rowKey="_id"
+                          expandable={{
+                            expandedRowRender: (record) => <p style={{ margin: 0 }}>{record.description}</p>,
+                            rowExpandable: (record) => record.description,
+                          }}
                         />
                       </div>
                     </div>
@@ -883,6 +946,69 @@ export default function DashbordAdminDeals(props: Props) {
                     </div>
                   </Grid>
                 </div>
+
+                <div className="pt-10">
+                  <MegaTitleProps title="Conversation" size="md" />
+                  <Grid container spacing={1} style={{ padding: 10 }}>
+                    <div className={classes.root}>
+                      <Card style={{ padding: 0 }}>
+                          <Grid container spacing={1} style={{ padding: 10 }}>
+                            <Grid item xs={4}>
+                              <List
+                                sx={{
+                                  width: '100%',
+                                  position: 'relative',
+                                  overflow: 'auto',
+                                  maxHeight: 600,
+                                  '& ul': { padding: 0 },
+                                }}
+                                subheader={<li />}
+                              >
+                              {dataDashboard.allConversations.map((conversation:any) => (
+                                  <ConversationUserItem
+                                    key={`conversationUserItem${conversation._id}`}
+                                    pictureDeals={`${consumeApi.AssetProductServer}${conversation.pictureDeals}`}
+                                    productName={conversation.productName}
+                                    _id={conversation._id}
+                                    room={conversation.room}
+                                    lastDate={conversation.lastDate}
+                                    etatCommunication={conversation.etatCommunication}
+                                    lastContent={conversation.lastContent}
+                                    lengthMessage={conversation.lengthMessage}
+                                    onClick={() => {setContentConversation(conversation)}}
+                                    />
+                                ))
+                              }
+                              </List>
+                            </Grid>
+                            <Grid item xs={8}>
+                            {!contentConversation._id ? (<Empty
+                              image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+                              imageStyle={{ height: 60 }}
+                              style={{width: "100%", height: "100%"}}
+                              description={
+                                <span>
+                                  Aucune conversation sélectionné
+                                </span>
+                              }
+                            />
+                            ) : <BoxConversation conversation={contentConversation} consumeApi={consumeApi} />
+                          }
+                            </Grid>
+                          </Grid>
+                      </Card>
+                    </div>
+                  </Grid>
+                  
+                </div>
+                <FloatButton.Group
+                  trigger="hover"
+                  type="primary"
+                  
+                  icon={<PlusCircleOutlined />}
+                >
+                  <FloatButton icon={<SyncOutlined />} onClick={refreshData} />
+                </FloatButton.Group>
               </Grid>
             </Grid>
           </div>

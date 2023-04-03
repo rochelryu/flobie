@@ -66,6 +66,7 @@ export class ConsumeApi {
   AssetProfilServer = this.base_url + "/profil/";
   AssetTravelServer = this.base_url + "/travel/";
   AssetProductServer = this.base_url + "/store/";
+  AssetConversationServer = this.base_url + "/public/conversation/";
 
   constructor() {}
 
@@ -150,6 +151,7 @@ export class ConsumeApi {
     title: string,
     body: string,
     imgUrl: string,
+    describe: string,
     data: Object,
     destinate: string[]
   ): Promise<ResponseInterface> {
@@ -161,6 +163,7 @@ export class ConsumeApi {
       title,
       body,
       imgUrl,
+      descritpion:describe,
       data,
       destinate
     };

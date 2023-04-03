@@ -161,7 +161,7 @@ function MobilePayement(props: Props) {
 
   const submitManageRechargement = async () => {
     if (
-      ref.length > 7 &&
+      ref.length > 4 &&
       numeroRechargement.length === 10 &&
       reseau.indexOf(typeReseau) !== -1 &&
       amount.length > 2
