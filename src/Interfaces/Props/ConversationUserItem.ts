@@ -9,7 +9,14 @@ export interface Props {
   disabled?: boolean;
   lastDate: Date;
   etatCommunication: string;
-  lastContent: {image:string, date:Date, ident:string, room:string, content:string, isReadByOtherUser:boolean};
+  lastContent: {
+    image: string;
+    date: Date;
+    ident: string;
+    room: string;
+    content: string;
+    isReadByOtherUser: boolean;
+  };
   lengthMessage: number;
   onClick: (event: any) => void;
   onFocus?: (e: any) => void;

@@ -46,13 +46,12 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
 } from "recharts";
 import CheckBoxs from "../Components/CheckBox/CheckBoxs";
 import { format } from "date-fns";
 import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
 import Highlighter from "react-highlight-words";
-import type { ColumnsType, ColumnType } from "antd/es/table";
+import type { ColumnType } from "antd/es/table";
 import type { FilterConfirmProps } from "antd/es/table/interface";
 import type { InputRef } from "antd";
 
@@ -633,16 +632,6 @@ export default function Dashboard(props: Props) {
     setVisible(false);
   };
 
-  const connection = async () => {
-    if (!disabled) {
-      message.loading("Recherche en cours");
-      setTimeout(() => {
-        setDisabled(!disabled);
-      }, 3000);
-    } else {
-      message.error("Veuillez faire entrer quelque chose à rechercher");
-    }
-  };
   const retraitReserve = (type: string) => {
     if (
       (type === "recharge" && amountRetraitRecharge <= 0) ||

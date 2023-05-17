@@ -15,12 +15,20 @@ import {
 } from "@mui/material";
 
 import { makeStyles } from "@mui/styles";
-import {
-  colorPrimary,
-  colorError,
-} from "../../Constants/color";
+import { colorPrimary, colorError } from "../../Constants/color";
 import Buttons from "../Components/Buttons/Buttons";
-import { FloatButton, message, Table, Tabs, Tag, Form, Space, Input, Empty, Select } from "antd";
+import {
+  FloatButton,
+  message,
+  Table,
+  Tabs,
+  Tag,
+  Form,
+  Space,
+  Input,
+  Empty,
+  Select,
+} from "antd";
 import MegaTitleProps from "../Components/MegaTitle/MegaTitle";
 import { SyncOutlined, Visibility, VisibilityOff } from "@mui/icons-material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -68,7 +76,6 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
 } from "recharts";
 import CheckBoxs from "../Components/CheckBox/CheckBoxs";
 import { format } from "date-fns";
@@ -114,86 +121,25 @@ const useStyles = makeStyles({
 const { TabPane } = Tabs;
 const top = 10;
 
-const renderActiveShape = (props: any) => {
-  const RADIAN = Math.PI / 180;
-  const {
-    cx,
-    cy,
-    midAngle,
-    innerRadius,
-    outerRadius,
-    startAngle,
-    endAngle,
-    fill,
-    payload,
-    percent,
-    value,
-  } = props;
-  const sin = Math.sin(-RADIAN * midAngle);
-  const cos = Math.cos(-RADIAN * midAngle);
-  const sx = cx + (outerRadius + 10) * cos;
-  const sy = cy + (outerRadius + 10) * sin;
-  const mx = cx + (outerRadius + 30) * cos;
-  const my = cy + (outerRadius + 30) * sin;
-  const ex = mx + (cos >= 0 ? 1 : -1) * 22;
-  const ey = my;
-  const textAnchor = cos >= 0 ? "start" : "end";
-
-  return (
-    <g>
-      <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill}>
-        {payload.name}
-      </text>
-      <Sector
-        cx={cx}
-        cy={cy}
-        innerRadius={innerRadius}
-        outerRadius={outerRadius}
-        startAngle={startAngle}
-        endAngle={endAngle}
-        fill={fill}
-      />
-      <Sector
-        cx={cx}
-        cy={cy}
-        startAngle={startAngle}
-        endAngle={endAngle}
-        innerRadius={outerRadius + 6}
-        outerRadius={outerRadius + 10}
-        fill={fill}
-      />
-      <path
-        d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`}
-        stroke={fill}
-        fill="none"
-      />
-      <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-      <text
-        x={ex + (cos >= 0 ? 1 : -1) * 12}
-        y={ey}
-        textAnchor={textAnchor}
-        fill="#333"
-      >{`$${value}`}</text>
-      <text
-        x={ex + (cos >= 0 ? 1 : -1) * 12}
-        y={ey}
-        dy={18}
-        textAnchor={textAnchor}
-        fill="#999"
-      >
-        {`(${(percent * 100).toFixed(2)}%)`}
-      </text>
-    </g>
-  );
-};
-
 export default function DashbordAdminDeals(props: Props) {
   const classes = useStyles();
   const navigate = useNavigate();
   const consumeApi: ConsumeApi = new ConsumeApi();
   const [contentConversation, setContentConversation] = useState<any>({});
+  const [searchProductInDeals, changeSearchProductInDeals] =
+    useState<string>("");
+  const [buyer, setBuyer] = useState<{ contact: string; name: string }>({
+    contact: "",
+    name: "",
+  });
+  const [seller, setSeller] = useState<{ contact: string; name: string }>({
+    contact: "",
+    name: "",
+  });
   const [isFetch, setIsFetch] = useState(true);
-  const [dataDashboard, setDataDashboard] = useState({
+  const [oldAllConversion, setAllConversation] = useState<any[]>([]);
+
+  const [dataDashboard, setDataDashboard] = useState<any>({
     countTotalAccount: 0,
     countTotalDealsApproved: 0,
     countTotalArticle: 0,
@@ -210,7 +156,7 @@ export default function DashbordAdminDeals(props: Props) {
     allProductNotFound: [],
     columnsNotificationInApp: [],
     destinateClientForNotificationCenter: [],
-    allConversations: []
+    allConversations: [],
   });
   const [address, changeAddress] = useState("");
   const [password, changePassword] = useState("");
@@ -223,7 +169,6 @@ export default function DashbordAdminDeals(props: Props) {
   const [numberClient, changeNumberClient] = useState("");
   const [viewPassWord, setViewPassWord] = useState(false);
   const [form] = Form.useForm();
-
 
   // Hooks Effet
   useEffect(() => {
@@ -270,11 +215,11 @@ export default function DashbordAdminDeals(props: Props) {
       imgUrlNotification.length > 5
     ) {
       message.loading("Enregistrement en cours").then(async () => {
-        let info:any = {};
-        values.sights.map(( item : {key:string, value:string} ) => {
+        let info: any = {};
+        values.sights.map((item: { key: string; value: string }) => {
           info[item.key] = item.value;
-        })
-        
+        });
+
         const createNotification = await consumeApi.createNotificationCenter(
           titleNotification.trim(),
           bodyNotification.trim(),
@@ -330,14 +275,20 @@ export default function DashbordAdminDeals(props: Props) {
   const columnsNotificationInApp = [
     { title: "Title", dataIndex: "title", key: "title", fixed: true },
     { title: "Body", dataIndex: "body", key: "body", fixed: true },
-    { title: "Destinataires", dataIndex: "clientsDestinate", fixed: true,
-    render: (clientsDestinate: any, rowData: any) => {
+    {
+      title: "Destinataires",
+      dataIndex: "clientsDestinate",
+      fixed: true,
+      render: (clientsDestinate: any, rowData: any) => {
         return (
           <Tag key={`clientsDestinate_${rowData._id}`} color={"green"}>
-            {rowData.clientsDestinate.length === 0 ? 'Tout le monde': rowData.clientsDestinate.length}
+            {rowData.clientsDestinate.length === 0
+              ? "Tout le monde"
+              : rowData.clientsDestinate.length}
           </Tag>
         );
-      }, },
+      },
+    },
     {
       title: "Client vue",
       dataIndex: "clientsViewer",
@@ -367,6 +318,7 @@ export default function DashbordAdminDeals(props: Props) {
     const data = await consumeApi.getDahsboardAdminDeals();
     if (data.etat === Etat.SUCCESS) {
       setDataDashboard(data.result);
+      setAllConversation(data.result.allConversations);
       setIsFetch(false);
     } else {
       localStorage.clear();
@@ -374,24 +326,46 @@ export default function DashbordAdminDeals(props: Props) {
     }
   }
 
-  const searchItem = (value:any) =>{
-    const items = value.map(( client: string) => client.split('----')[1]);
+  const searchItem = (value: any) => {
+    const items = value.map((client: string) => client.split("----")[1]);
     changeDestinate(items);
+  };
+
+  const filterProduct = (searchProduct: string) => {
+    changeSearchProductInDeals(searchProduct);
+    const searchProductTrim = searchProduct.trim().toLocaleLowerCase();
+    if (searchProductTrim.length === 0) {
+      setDataDashboard({
+        ...dataDashboard,
+        allConversations: oldAllConversion,
+      });
+    } else if (searchProductTrim.length > 1) {
+      console.log("on update");
+      const newConversation = oldAllConversion.filter(
+        (conversation: any, index: number) =>
+          conversation.productName
+            .toString()
+            .toLocaleLowerCase()
+            .indexOf(searchProductTrim) !== -1
+      );
+
+      setDataDashboard({ ...dataDashboard, allConversations: newConversation });
+    }
   };
 
   const refreshData = () => {
     message.loading("Actualisation...").then(async () => {
       await loadData();
       changeAddress("");
-          changePassword("");
-          changeName("");
-          changeNumberClient("");
-          changeTitleNotification("");
-          changeBodyNotification("");
-          changeImgUrlNotification("");
-          changeDescribe("");
-          changeDestinate([]);
-          form.resetFields();
+      changePassword("");
+      changeName("");
+      changeNumberClient("");
+      changeTitleNotification("");
+      changeBodyNotification("");
+      changeImgUrlNotification("");
+      changeDescribe("");
+      changeDestinate([]);
+      form.resetFields();
       message.success("Actualisation terminé");
     });
   };
@@ -629,8 +603,6 @@ export default function DashbordAdminDeals(props: Props) {
                   </Grid>
                 </Grid>
 
-                
-
                 <div className="pt-10">
                   <MegaTitleProps title="Ajout Notification Center" size="md" />
                   <Grid container spacing={1} style={{ padding: 10 }}>
@@ -663,9 +635,10 @@ export default function DashbordAdminDeals(props: Props) {
                                 required={true}
                                 variant="outlined"
                                 label="Titre"
-                                
                                 type="text"
-                                onChange={(e) => changeTitleNotification(e.target.value)}
+                                onChange={(e) =>
+                                  changeTitleNotification(e.target.value)
+                                }
                               />
                             </Grid>
                             <Grid item xs={8}>
@@ -678,7 +651,9 @@ export default function DashbordAdminDeals(props: Props) {
                                     required={true}
                                     variant="outlined"
                                     label="Corps Notification"
-                                    onChange={(e) => changeBodyNotification(e.target.value)}
+                                    onChange={(e) =>
+                                      changeBodyNotification(e.target.value)
+                                    }
                                   />
                                 </Grid>
                                 <Grid item xs={4}>
@@ -712,81 +687,86 @@ export default function DashbordAdminDeals(props: Props) {
                               </Grid>
                             </Grid>
                             <Grid item xs={6}>
-                                  <Form
-                                    form={form}
-                                    name="control-hooks"
-                                    onFinish={createNotificationCenter}
-                                  >
-                                    <Form.List name="sights">
-                                      {(fields, { add, remove }) => (
-                                        <>
-                                          {fields.map((field) => (
-                                            <Space key={field.key} align="baseline">
-                                              <Form.Item
-                                                noStyle
-                                                shouldUpdate={(prevValues, curValues) =>
-                                                  prevValues.area !== curValues.area ||
-                                                  prevValues.sights !== curValues.sights
-                                                }
-                                              >
-                                                {() => (
-                                                  <Form.Item
-                                                    {...field}
-                                                    label="Key"
-                                                    name={[field.name, "key"]}
-                                                    fieldKey={[field.key, "key"]}
-                                                    rules={[
-                                                      {
-                                                        required: false,
-                                                        message: "D",
-                                                      },
-                                                    ]}
-                                                  >
-                                                   <Input />
-                                                  </Form.Item>
-                                                )}
-                                              </Form.Item>
+                              <Form
+                                form={form}
+                                name="control-hooks"
+                                onFinish={createNotificationCenter}
+                              >
+                                <Form.List name="sights">
+                                  {(fields, { add, remove }) => (
+                                    <>
+                                      {fields.map((field) => (
+                                        <Space key={field.key} align="baseline">
+                                          <Form.Item
+                                            noStyle
+                                            shouldUpdate={(
+                                              prevValues,
+                                              curValues
+                                            ) =>
+                                              prevValues.area !==
+                                                curValues.area ||
+                                              prevValues.sights !==
+                                                curValues.sights
+                                            }
+                                          >
+                                            {() => (
                                               <Form.Item
                                                 {...field}
-                                                label="Value"
-                                                name={[field.name, "value"]}
-                                                fieldKey={[field.key, "value"]}
-                                                rules={[{ required: false }]}
+                                                label="Key"
+                                                name={[field.name, "key"]}
+                                                fieldKey={[field.key, "key"]}
+                                                rules={[
+                                                  {
+                                                    required: false,
+                                                    message: "D",
+                                                  },
+                                                ]}
                                               >
                                                 <Input />
                                               </Form.Item>
-
-                                              <MinusCircleOutlined
-                                                onClick={() => remove(field.name)}
-                                              />
-                                            </Space>
-                                          ))}
-
-                                          <Form.Item>
-                                            <Buttons
-                                              key="addItemTable"
-                                              id="addItemTable"
-                                              type="ghost"
-                                              title="Ajouter"
-                                              onClick={() => add()}
-                                            />
+                                            )}
                                           </Form.Item>
-                                        </>
-                                      )}
-                                    </Form.List>
-                                  </Form>
-                              
+                                          <Form.Item
+                                            {...field}
+                                            label="Value"
+                                            name={[field.name, "value"]}
+                                            fieldKey={[field.key, "value"]}
+                                            rules={[{ required: false }]}
+                                          >
+                                            <Input />
+                                          </Form.Item>
+
+                                          <MinusCircleOutlined
+                                            onClick={() => remove(field.name)}
+                                          />
+                                        </Space>
+                                      ))}
+
+                                      <Form.Item>
+                                        <Buttons
+                                          key="addItemTable"
+                                          id="addItemTable"
+                                          type="ghost"
+                                          title="Ajouter"
+                                          onClick={() => add()}
+                                        />
+                                      </Form.Item>
+                                    </>
+                                  )}
+                                </Form.List>
+                              </Form>
                             </Grid>
                             <Grid item xs={6}>
-                            <Select
+                              <Select
                                 mode="multiple"
                                 allowClear
-                                style={{ width: '100%' }}
+                                style={{ width: "100%" }}
                                 placeholder="Recherche par nom"
                                 onChange={searchItem}
-                                options={dataDashboard.destinateClientForNotificationCenter}
-                                                  />
-                            
+                                options={
+                                  dataDashboard.destinateClientForNotificationCenter
+                                }
+                              />
                             </Grid>
                           </Grid>
                         </AccordionDetails>
@@ -795,7 +775,9 @@ export default function DashbordAdminDeals(props: Props) {
                           <Button
                             size="small"
                             color="primary"
-                            onClick={()=> {form.submit()}}
+                            onClick={() => {
+                              form.submit();
+                            }}
                           >
                             Enregistrer
                           </Button>
@@ -814,7 +796,9 @@ export default function DashbordAdminDeals(props: Props) {
                           dataSource={dataDashboard.columnsNotificationInApp}
                           rowKey="_id"
                           expandable={{
-                            expandedRowRender: (record) => <p style={{ margin: 0 }}>{record.description}</p>,
+                            expandedRowRender: (record) => (
+                              <p style={{ margin: 0 }}>{record.description}</p>
+                            ),
                             rowExpandable: (record) => record.description,
                           }}
                         />
@@ -952,19 +936,32 @@ export default function DashbordAdminDeals(props: Props) {
                   <Grid container spacing={1} style={{ padding: 10 }}>
                     <div className={classes.root}>
                       <Card style={{ padding: 0 }}>
-                          <Grid container spacing={1} style={{ padding: 10 }}>
-                            <Grid item xs={4}>
-                              <List
-                                sx={{
-                                  width: '100%',
-                                  position: 'relative',
-                                  overflow: 'auto',
-                                  maxHeight: 600,
-                                  '& ul': { padding: 0 },
-                                }}
-                                subheader={<li />}
-                              >
-                              {dataDashboard.allConversations.map((conversation:any) => (
+                        <Grid container spacing={1} style={{ padding: 10 }}>
+                          <Grid item xs={4}>
+                            <TextInputField
+                              id="searchProductInDeals"
+                              required={false}
+                              className="searchProductInDeals"
+                              value={searchProductInDeals}
+                              variant="outlined"
+                              type="text"
+                              label="Nom du produuit"
+                              onChange={(e) =>
+                                filterProduct(e.target.value.toString())
+                              }
+                            />
+                            <List
+                              sx={{
+                                width: "100%",
+                                position: "relative",
+                                overflow: "auto",
+                                maxHeight: 600,
+                                "& ul": { padding: 0 },
+                              }}
+                              subheader={<li />}
+                            >
+                              {dataDashboard.allConversations.map(
+                                (conversation: any) => (
                                   <ConversationUserItem
                                     key={`conversationUserItem${conversation._id}`}
                                     pictureDeals={`${consumeApi.AssetProductServer}${conversation.pictureDeals}`}
@@ -972,39 +969,48 @@ export default function DashbordAdminDeals(props: Props) {
                                     _id={conversation._id}
                                     room={conversation.room}
                                     lastDate={conversation.lastDate}
-                                    etatCommunication={conversation.etatCommunication}
+                                    etatCommunication={
+                                      conversation.etatCommunication
+                                    }
                                     lastContent={conversation.lastContent}
                                     lengthMessage={conversation.lengthMessage}
-                                    onClick={() => {setContentConversation(conversation)}}
-                                    />
-                                ))
-                              }
-                              </List>
-                            </Grid>
-                            <Grid item xs={8}>
-                            {!contentConversation._id ? (<Empty
-                              image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
-                              imageStyle={{ height: 60 }}
-                              style={{width: "100%", height: "100%"}}
-                              description={
-                                <span>
-                                  Aucune conversation sélectionné
-                                </span>
-                              }
-                            />
-                            ) : <BoxConversation conversation={contentConversation} consumeApi={consumeApi} />
-                          }
-                            </Grid>
+                                    onClick={() => {
+                                      setContentConversation(conversation);
+                                      setBuyer(conversation.buyer);
+                                      setSeller(conversation.seller);
+                                    }}
+                                  />
+                                )
+                              )}
+                            </List>
                           </Grid>
+                          <Grid item xs={8}>
+                            {!contentConversation._id ? (
+                              <Empty
+                                image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+                                imageStyle={{ height: 60 }}
+                                style={{ width: "100%", height: "100%" }}
+                                description={
+                                  <span>Aucune conversation sélectionné</span>
+                                }
+                              />
+                            ) : (
+                              <BoxConversation
+                                conversation={contentConversation}
+                                consumeApi={consumeApi}
+                                buyer={buyer}
+                                seller={seller}
+                              />
+                            )}
+                          </Grid>
+                        </Grid>
                       </Card>
                     </div>
                   </Grid>
-                  
                 </div>
                 <FloatButton.Group
                   trigger="hover"
                   type="primary"
-                  
                   icon={<PlusCircleOutlined />}
                 >
                   <FloatButton icon={<SyncOutlined />} onClick={refreshData} />

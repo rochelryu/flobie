@@ -48,6 +48,7 @@ export class ConsumeApi {
   private setDeleveryProductLevelOne_url =
     this.base_url + "/lastLevel/setDeleveryProductLevelOne";
   private rembourseClient_url = this.base_url + "/lastLevel/rembourseClient";
+  private removeDeals_url = this.base_url + "/lastLevel/removeDeals";
   private setDeleveryProductLevelTwo_url =
     this.base_url + "/lastLevel/setDeleveryProductLevelTwo";
   private setDeleveryProductLevelThree_url =
@@ -163,9 +164,9 @@ export class ConsumeApi {
       title,
       body,
       imgUrl,
-      descritpion:describe,
+      descritpion: describe,
       data,
-      destinate
+      destinate,
     };
     const response = await post(this.createNotificationCenter_url, item);
     if (response.etat === Etat.SUCCESS) {
@@ -442,6 +443,21 @@ export class ConsumeApi {
       typeOfRetour,
     };
     const response = await post(this.rembourseClient_url, body);
+    if (response.etat === Etat.SUCCESS) {
+      localStorage.setItem("recovery", response.result.recovery);
+    }
+    return response;
+  }
+
+  async removeDeals(itemSelect: string): Promise<ResponseInterface> {
+    const id = localStorage.getItem("ident");
+    const recovery = localStorage.getItem("recovery");
+    const body = {
+      id,
+      recovery,
+      itemSelect,
+    };
+    const response = await post(this.removeDeals_url, body);
     if (response.etat === Etat.SUCCESS) {
       localStorage.setItem("recovery", response.result.recovery);
     }

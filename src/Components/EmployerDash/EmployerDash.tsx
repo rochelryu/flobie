@@ -32,6 +32,7 @@ import {
   WalletOutlined,
   CloudSyncOutlined,
   UploadOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import { colorError, colorPrimary } from "../../Constants/color";
 
@@ -287,6 +288,20 @@ function EmployerDash(props: Props) {
     });
   };
 
+  const removeDeals = () => {
+    message.loading("Enregistrement en cours").then(async () => {
+      const data = await consumeApi.removeDeals(itemSelect);
+      if (data.etat === Etat.SUCCESS) {
+        await loadData();
+        setItemSelect("");
+        setSelected(0);
+      } else {
+        const error = data.error as Error;
+        message.error(error.message);
+      }
+    });
+  };
+
   const reformatContent = (currentIndex: number) => {
     if (currentIndex === -1) {
       return (
@@ -420,7 +435,7 @@ function EmployerDash(props: Props) {
                     setRestReservation({
                       ...restReservation,
                       deliveryManInfo: e.target.value,
-                    })
+                    });
                   }}
                 />
               </Grid>
@@ -1140,6 +1155,20 @@ function EmployerDash(props: Props) {
                   </AccordionDetails>
                   <Divider />
                   <AccordionActions>
+                    {levelDelivery <= 2 && (
+                      <Buttons
+                        key="annuler"
+                        id="annuler"
+                        shape="round"
+                        type="primary"
+                        danger={true}
+                        title="Annuler"
+                        icon={<CloseOutlined color={"#fff"} />}
+                        tooltip="Annuler"
+                        onClick={removeDeals}
+                      />
+                    )}
+
                     {current < items.length - 1 && (
                       <Buttons
                         key="next"
@@ -1161,7 +1190,7 @@ function EmployerDash(props: Props) {
                         type="ghost"
                         title="Rembourser"
                         icon={<UploadOutlined color={"#fff"} />}
-                        tooltip="Etape Suivante"
+                        tooltip="Rembourser"
                         onClick={() => rembourser(levelDelivery)}
                       />
                     )}

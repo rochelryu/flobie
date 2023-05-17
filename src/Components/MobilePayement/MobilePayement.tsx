@@ -304,7 +304,7 @@ function MobilePayement(props: Props) {
             shape="round"
             type="dashed"
             icon={<DeleteTwoToneIcon color="warning" />}
-            tooltip="Valider Retrait"
+            tooltip="Supprimer Rechargement"
             onClick={async () => {
               await delRechargement(rowData._id);
             }}
