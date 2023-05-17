@@ -945,7 +945,7 @@ export default function DashbordAdminDeals(props: Props) {
                               value={searchProductInDeals}
                               variant="outlined"
                               type="text"
-                              label="Nom du produuit"
+                              label="Nom du produit"
                               onChange={(e) =>
                                 filterProduct(e.target.value.toString())
                               }
