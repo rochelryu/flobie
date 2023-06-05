@@ -13,3 +13,7 @@ export const level_role = (role: string) => {
     return 3;
   }
 };
+
+export const handleMouseDown = (event: React.MouseEvent<HTMLButtonElement>) => {
+  event.preventDefault();
+};

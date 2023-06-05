@@ -23,6 +23,9 @@ export class ConsumeApi {
     this.base_url + "/lastLevel/validateRechargement";
   private dropTravelDemande_url =
     this.base_url + "/lastLevel/dropTravelDemande";
+
+  private toogleVisibilityNotification_url =
+    this.base_url + "/lastLevel/toogleVisibilityNotification";
   private dropPassagerDemande_url =
     this.base_url + "/lastLevel/dropPassagerDemande";
   private validateTravelDemande_url =
@@ -249,6 +252,24 @@ export class ConsumeApi {
     }
     return response;
   }
+
+  async toogleVisibilityNotification(
+    idNotification: string
+  ): Promise<ResponseInterface> {
+    const id = localStorage.getItem("ident");
+    const recovery = localStorage.getItem("recovery");
+    const body = {
+      id,
+      recovery,
+      idNotification,
+    };
+    const response = await post(this.toogleVisibilityNotification_url, body);
+    if (response.etat === Etat.SUCCESS) {
+      localStorage.setItem("recovery", response.result.recovery);
+    }
+    return response;
+  }
+
 
   async createReseau(name: string, numero: string): Promise<ResponseInterface> {
     const id = localStorage.getItem("ident");

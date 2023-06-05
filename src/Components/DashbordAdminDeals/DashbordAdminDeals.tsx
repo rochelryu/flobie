@@ -82,6 +82,7 @@ import { format } from "date-fns";
 import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
 import ConversationUserItem from "../Components/ConversationUserItem/ConversationUserItem";
 import BoxConversation from "../Components/BoxConversation/BoxConversation";
+import { handleMouseDown } from "../../Constants/function";
 
 const useStyles = makeStyles({
   root: {
@@ -295,9 +296,26 @@ export default function DashbordAdminDeals(props: Props) {
       fixed: true,
       render: (clientsViewer: any, rowData: any) => {
         return (
-          <Tag key={`clientsViewer_${rowData._id}`} color={"green"}>
+          <Tag key={`clientsViewer_${rowData._id}`} color={rowData.isActive ? "green" : 'volcano'}>
             {rowData.clientsViewer.length}
           </Tag>
+        );
+      },
+    },
+    {
+      title: "Action",
+      dataIndex: "_id",
+      fixed: true,
+      render: (_id: any, rowData: any) => {
+        return (
+          <IconButton
+                                  aria-label="toggle notification visibility"
+                                  onClick={() => toogleVisibilityNotification(rowData._id)}
+                                  onMouseDown={handleMouseDown}
+                                  edge="end"
+                                >
+                                  <SyncOutlined />
+                                </IconButton>
         );
       },
     },
@@ -330,6 +348,19 @@ export default function DashbordAdminDeals(props: Props) {
     const items = value.map((client: string) => client.split("----")[1]);
     changeDestinate(items);
   };
+
+  const toogleVisibilityNotification = (idNotification: string) => {
+    message.loading("Changement en cours").then(async () => {
+      const datas = await consumeApi.toogleVisibilityNotification(idNotification.trim());
+      if (datas.etat === Etat.SUCCESS) {
+        message.success("Retrait effectué");
+        await loadData();
+      } else {
+        localStorage.clear();
+        navigate("/signin");
+      }
+    });
+  }
 
   const filterProduct = (searchProduct: string) => {
     changeSearchProductInDeals(searchProduct);

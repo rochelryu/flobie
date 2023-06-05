@@ -56,6 +56,7 @@ import type { FilterConfirmProps } from "antd/es/table/interface";
 import type { InputRef } from "antd";
 
 import "./Dashboard.scss";
+import { handleMouseDown } from "../../Constants/function";
 
 const { TabPane } = Tabs;
 const top = 10;
@@ -671,10 +672,6 @@ export default function Dashboard(props: Props) {
         }
       });
     }
-  };
-
-  const handleMouseDown = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
   };
 
   const createCategorie = async (popularity: number) => {
