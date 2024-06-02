@@ -57,7 +57,7 @@
     "scripts": {
         "start": "react-scripts start",
         "preelectron-pack": "yarn build",
-        "build": "yarn react-build && yarn electron-build",
+        "build": "react-scripts build",
         "format": "prettier --write \"src/**/*.ts\" \"src/**/*.tsx\"",
         "test": "react-scripts test --env=jsdom",
         "lint": "tslint -p tsconfig.json -c tslint.json",
