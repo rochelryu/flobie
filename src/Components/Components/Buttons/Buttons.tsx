@@ -3,14 +3,12 @@ import { Button, Tooltip } from "antd";
 import { Props } from "../../../Interfaces/Props/ButtonsProps";
 
 export default function Buttons(props: Props) {
-  const buttonRef = React.createRef<HTMLElement>();
   // const HeartIcon = (props: any) => <Icon component={props.icon} {...props} />;
   if (props.tooltip) {
     return (
       <Tooltip title={props.tooltip}>
         <Button
           id={props.id}
-          ref={buttonRef}
           className={props.className}
           type={props.type}
           shape={props.shape}
