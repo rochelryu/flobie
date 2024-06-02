@@ -12,7 +12,7 @@ export interface Props {
   shape?: "circle" | "round";
   loading?: boolean;
   block?: boolean;
-  type?: "primary" | "ghost" | "dashed" | "link" | "default";
+  type?: "primary" | "dashed" | "link" | "default" | "text";
   onClick: (event: any) => void;
   onFocus?: (e: any) => void;
   onBlur?: (e: any) => void;

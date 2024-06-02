@@ -3,7 +3,7 @@ import { ResponseInterface } from "../Interfaces/ServerSide/ResponseInterface";
 import { get, post } from "./network_utils";
 
 export class ConsumeApi {
-  private base_url = "https://app.shouz.network"; //192.168.1.180:5000 //192.168.43.115:8000";
+  private base_url = "https://app.shouz.network"; //192.168.1.8:5002 //192.168.43.115:8000";
   private signin_url = this.base_url + "/lastLevel/login";
   private dashboard_url = this.base_url + "/lastLevel/dashboard";
   private dashboardAdmin_url = this.base_url + "/lastLevel/dashboardAdminDeals";

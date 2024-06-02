@@ -777,7 +777,7 @@ export default function DashbordAdminDeals(props: Props) {
                                         <Buttons
                                           key="addItemTable"
                                           id="addItemTable"
-                                          type="ghost"
+                                          type="dashed"
                                           title="Ajouter"
                                           onClick={() => add()}
                                         />

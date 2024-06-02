@@ -150,7 +150,7 @@ function EmployerDash(props: Props) {
   });
 
   const onSelectDate: DatePickerProps["onChange"] = (date, dateString) => {
-    setDateDelivery(dateString);
+    setDateDelivery(dateString as string);
   };
 
   const [restReservation, setRestReservation] = useState({
@@ -203,13 +203,15 @@ function EmployerDash(props: Props) {
             );
             setCurrent(current + 1);
           } else {
-            const error = data.error as Error;
+            const error = data.error as string;
+            console.log("data.error");
+            console.log(data);
             openNotificationWithIcon(
               "error",
               "Solde Insuffisant",
-              error.message
+              error
             );
-            message.error(error.message);
+            message.error(error);
           }
         });
       }
@@ -1187,7 +1189,7 @@ function EmployerDash(props: Props) {
                         key="rembourser"
                         id="rembourser"
                         shape="round"
-                        type="ghost"
+                        type="dashed"
                         title="Rembourser"
                         icon={<UploadOutlined color={"#fff"} />}
                         tooltip="Rembourser"
@@ -1208,7 +1210,7 @@ function EmployerDash(props: Props) {
                     key="reload"
                     id="reload"
                     shape="round"
-                    type="ghost"
+                    type="dashed"
                     title="Actualiser"
                     icon={<CloudSyncOutlined color={"#fff"} />}
                     tooltip="Actualiser"
@@ -1266,7 +1268,7 @@ function EmployerDash(props: Props) {
                       key="reject"
                       id="reject"
                       shape="round"
-                      type="ghost"
+                      type="dashed"
                       title="Rejetter"
                       icon={<CloseCircleOutlined color={"#fff"} />}
                       tooltip="Rejetter article"
@@ -1286,7 +1288,7 @@ function EmployerDash(props: Props) {
                     key="reload"
                     id="reload"
                     shape="round"
-                    type="ghost"
+                    type="dashed"
                     title="Actualiser"
                     icon={<CloudSyncOutlined color={"#fff"} />}
                     tooltip="Actualiser"

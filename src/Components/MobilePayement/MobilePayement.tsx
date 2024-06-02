@@ -373,7 +373,7 @@ function MobilePayement(props: Props) {
               key="reload"
               id="reload"
               shape="round"
-              type="ghost"
+              type="dashed"
               title="Actualiser"
               icon={<CloudSyncOutlined color={"#fff"} />}
               tooltip="Actualiser"

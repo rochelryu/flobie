@@ -34,6 +34,7 @@ import { Etat } from "../../Constants/Enum";
 import { ConsumeApi } from "../../ServiceWorker/ConsumeApi";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
+import { allAuthorsOfActuality } from "../../Constants/_mook/actualityConstants";
 
 const useStyles = makeStyles({
   root: {
@@ -90,6 +91,7 @@ function AddActuality(props: Props) {
   const [form] = Form.useForm();
   const [isFetch, setIsFetch] = useState(true);
   const [actualities, setActualities] = useState<any[]>([]);
+  const [author, setAuthor] = useState<any>({});
   const [categorieActualities, setCategorieActualities] = useState<any[]>([]);
 
   const loadData = async () => {
@@ -113,8 +115,8 @@ function AddActuality(props: Props) {
   };
   const onFinish = async (values: any) => {
     const createActuality = await consumeApi.createActuality(
-      values.autherName.trim(),
-      values.authorProfil.trim(),
+      author.authorName.trim(),
+      author.authorUrl.trim(),
       values.categorie.trim(),
       values.imageCover.trim(),
       values.title.trim(),
@@ -220,6 +222,11 @@ function AddActuality(props: Props) {
     form.setFieldsValue({ categorie: value });
   };
 
+  const choiceAuthor = (index: number) => {
+    const newAuthor = allAuthorsOfActuality[index];
+    setAuthor(newAuthor);
+  };
+
   const onSearch = (value: string) => {
     console.log("search:", value);
   };
@@ -274,31 +281,34 @@ function AddActuality(props: Props) {
                       >
                         <Form.Item
                           name="title"
-                          label="Title"
+                          label="Titre"
                           rules={[{ required: true }]}
                         >
                           <Input />
                         </Form.Item>
                         <Form.Item
                           name="imageCover"
-                          label="Article Cover"
+                          label="Image de couverture"
                           rules={[{ required: true }]}
                         >
                           <Input />
                         </Form.Item>
                         <Form.Item
                           name="autherName"
-                          label="Auther Name"
+                          label="Nom Autheur"
                           rules={[{ required: true }]}
                         >
-                          <Input />
-                        </Form.Item>
-                        <Form.Item
-                          name="authorProfil"
-                          label="Auther Profil"
-                          rules={[{ required: true }]}
-                        >
-                          <Input />
+                          <Select
+                            placeholder="Selectionner l'auteur de l'article"
+                            onChange={choiceAuthor}
+                            allowClear
+                          >
+                            {allAuthorsOfActuality.map((author, index) => (
+                              <Option key={`author-${index}`} value={index}>
+                                {author.authorName}
+                              </Option>
+                            ))}
+                          </Select>
                         </Form.Item>
 
                         <Form.Item
@@ -307,7 +317,7 @@ function AddActuality(props: Props) {
                           rules={[{ required: true }]}
                         >
                           <Select
-                            placeholder="Select categorie"
+                            placeholder="Selectionne la categorie"
                             onChange={onCategorieChange}
                             allowClear
                             optionFilterProp="children"

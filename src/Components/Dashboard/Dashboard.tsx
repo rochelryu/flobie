@@ -267,7 +267,7 @@ export default function Dashboard(props: Props) {
         <TextInputField
           id="titleCategorie"
           className="titleCategorie"
-          value={selectedKeys[0]}
+          value={selectedKeys[0] as string}
           required={true}
           variant="outlined"
           placeholder={`Rechercher ${dataIndex}`}
@@ -910,7 +910,7 @@ export default function Dashboard(props: Props) {
                       key="reload"
                       id="reload"
                       shape="round"
-                      type="ghost"
+                      type="dashed"
                       title="Actualiser"
                       icon={<CloudSyncOutlined color={"#fff"} />}
                       tooltip="Actualiser"

@@ -92,11 +92,11 @@ function AdminCovoiturage(props: Props) {
   const [isFetch, setIsFetch] = useState(true);
   const [travellersDemandes, setTravellersDemandes] = useState<any[]>([]);
 
-  const onChangeAssurance = (date: any, dateString: string) => {
-    setAssuranceExpiration(dateString);
+  const onChangeAssurance = (date: any, dateString: string | string[]) => {
+    setAssuranceExpiration(dateString as string);
   };
-  const onChangeTechnique = (date: any, dateString: string) => {
-    setTechniqueExpiration(dateString);
+  const onChangeTechnique = (date: any, dateString: string | string[]) => {
+    setTechniqueExpiration(dateString as string);
   };
 
   const sectionDetails = (selectedItem: number) => {
@@ -403,7 +403,7 @@ function AdminCovoiturage(props: Props) {
                       key="annuler"
                       id="annuler"
                       shape="round"
-                      type="ghost"
+                      type="dashed"
                       danger={true}
                       title="Annuler"
                       icon={<CloseCircleOutlined color={"#fff"} />}

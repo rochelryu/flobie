@@ -282,7 +282,7 @@ function EmployerCovoiturage(props: Props) {
                       key="annuler"
                       id="annuler"
                       shape="round"
-                      type="ghost"
+                      type="dashed"
                       danger={true}
                       title="Annuler"
                       icon={<CloseCircleOutlined color={"#fff"} />}
@@ -312,7 +312,7 @@ function EmployerCovoiturage(props: Props) {
                     key="reload"
                     id="reload"
                     shape="round"
-                    type="ghost"
+                    type="dashed"
                     title="Actualiser"
                     icon={<CloudSyncOutlined color={"#fff"} />}
                     tooltip="Actualiser"
